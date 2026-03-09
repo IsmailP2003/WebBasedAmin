@@ -1,0 +1,20 @@
+{
+  "name": "school-admin",
+  "version": "1.0.0",
+  "description": "Web-Based School Administration System — Ismail Patel, BSc Software Engineering, MMU 2026",
+  "scripts": {
+    "start": "cd server && npm start",
+    "server": "cd server && npm run dev",
+    "client": "cd client && npm run dev",
+    "dev": "concurrently \"npm run server\" \"npm run client\"",
+    "install:all": "cd server && npm install && cd ../client && npm install",
+    "seed": "cd server && npm run seed",
+    "test": "cd server && npm test"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "dependencies": {
+    "mongodb": "^7.1.0"
+  }
+}
