@@ -14,14 +14,14 @@ const seed = async () => {
   await connectDB();
   console.log('🌱 Seeding database...');
 
-  // Clear existing data
+  //Clear existing data
   await Promise.all([
     User.deleteMany(), Student.deleteMany(), Course.deleteMany(),
     Attendance.deleteMany(), Grade.deleteMany(),
   ]);
   console.log('🗑️  Cleared existing data');
 
-  // ── Users ──────────────────────────────────────────
+  //Users
   const admin = await User.create({
     name: 'Admin User',
     email: 'admin@schooladmin.com',
@@ -36,7 +36,7 @@ const seed = async () => {
   ]);
   console.log(`✅ Created 1 admin + ${teachers.length} teachers`);
 
-  // ── Students ──────────────────────────────────────
+  //Students
   const studentData = [
     { studentId: 'STU001', firstName: 'Aisha', lastName: 'Rahman', email: 'a.rahman@student.school.com', dateOfBirth: new Date('2005-03-14'), gender: 'female', status: 'active', dataConsentGiven: true, consentDate: new Date() },
     { studentId: 'STU002', firstName: 'James', lastName: 'Murray', email: 'j.murray@student.school.com', dateOfBirth: new Date('2005-07-22'), gender: 'male', status: 'active', dataConsentGiven: true, consentDate: new Date() },
@@ -52,7 +52,7 @@ const seed = async () => {
   const students = await Student.insertMany(studentData);
   console.log(`✅ Created ${students.length} students`);
 
-  // ── Courses ────────────────────────────────────────
+  //Courses
   const courses = await Course.insertMany([
     {
       courseCode: 'CS101', name: 'Introduction to Computer Science', description: 'Fundamentals of computing, algorithms, and problem-solving.',
@@ -81,7 +81,7 @@ const seed = async () => {
   ]);
   console.log(`✅ Created ${courses.length} courses`);
 
-  // Sync student enrolledCourses
+  //Sync student enrolledCourses
   for (const course of courses) {
     await Student.updateMany(
       { _id: { $in: course.students } },
@@ -89,7 +89,7 @@ const seed = async () => {
     );
   }
 
-  // ── Attendance (last 10 days) ─────────────────────
+  //Attendance (last 10 days)
   const attendanceRecords = [];
   const today = new Date();
   for (let daysAgo = 9; daysAgo >= 0; daysAgo--) {
@@ -100,7 +100,7 @@ const seed = async () => {
 
     for (const course of courses) {
       for (const studentId of course.students) {
-        // Simulate realistic attendance (~85% present)
+        //Simulate realistic attendance (~85% present)
         const rand = Math.random();
         const status = rand > 0.85 ? (rand > 0.92 ? 'absent' : 'late') : 'present';
         attendanceRecords.push({
@@ -110,10 +110,10 @@ const seed = async () => {
       }
     }
   }
-  await Attendance.insertMany(attendanceRecords, { ordered: false }).catch(() => {});
+  await Attendance.insertMany(attendanceRecords, { ordered: false }).catch(() => { });
   console.log(`✅ Created ${attendanceRecords.length} attendance records`);
 
-  // ── Grades ─────────────────────────────────────────
+  //Grades
   const assessments = [
     { name: 'Coursework 1', type: 'assignment', maxScore: 100 },
     { name: 'Mid-Term Exam', type: 'exam', maxScore: 80 },

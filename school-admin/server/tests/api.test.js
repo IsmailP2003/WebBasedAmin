@@ -10,21 +10,21 @@ let teacherToken;
 let testStudentId;
 
 beforeAll(async () => {
-  // Connect to test DB
+  //Connect to test DB
   await mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/school-admin-test');
   await User.deleteMany();
   await Student.deleteMany();
 
-  // Create test admin
+  //Create test admin
   const admin = await User.create({
     name: 'Test Admin', email: 'admin@test.com', password: 'Admin1234!', role: 'admin',
   });
-  // Create test teacher
+  //Create test teacher
   const teacher = await User.create({
     name: 'Test Teacher', email: 'teacher@test.com', password: 'Teacher1234!', role: 'teacher',
   });
 
-  // Login to get tokens
+  //Login to get tokens
   const adminRes = await request(app).post('/api/auth/login').send({ email: 'admin@test.com', password: 'Admin1234!' });
   adminToken = adminRes.body.token;
 
@@ -39,7 +39,7 @@ afterAll(async () => {
   await mongoose.disconnect();
 });
 
-// ── Auth Tests ────────────────────────────────────────
+//Auth Tests
 describe('POST /api/auth/login', () => {
   it('should login with valid credentials and return a JWT', async () => {
     const res = await request(app).post('/api/auth/login').send({ email: 'admin@test.com', password: 'Admin1234!' });
@@ -74,7 +74,7 @@ describe('GET /api/auth/me', () => {
   });
 });
 
-// ── Student Tests ─────────────────────────────────────
+//Student Tests
 describe('POST /api/students', () => {
   it('admin should create a student', async () => {
     const res = await request(app)
@@ -150,7 +150,7 @@ describe('DELETE /api/students/:id', () => {
   });
 });
 
-// ── Health Check ─────────────────────────────────────
+//Health Check
 describe('GET /api/health', () => {
   it('should return 200 with health status', async () => {
     const res = await request(app).get('/api/health');

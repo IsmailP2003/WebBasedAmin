@@ -23,7 +23,7 @@ const createAuditEntry = async ({ action, performedBy, targetModel, targetId, de
       userAgent: req?.headers?.['user-agent'],
     });
   } catch (err) {
-    // Audit logging should never crash the main operation
+    //Audit logging should never crash the main operation
     console.error('Audit log failed:', err.message);
   }
 };

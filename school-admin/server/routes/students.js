@@ -19,7 +19,13 @@ router.get('/', async (req, res, next) => {
     const query = {};
 
     if (search) {
-      query.$text = { $search: search };
+      const regex = new RegExp(search, 'i'); // case-insensitive partial match
+      query.$or = [
+        { firstName:  regex },
+        { lastName:   regex },
+        { email:      regex },
+        { studentId:  regex },
+      ];
     }
     if (status) {
       query.status = status;
