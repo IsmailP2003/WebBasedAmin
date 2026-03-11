@@ -113,4 +113,43 @@ router.get('/monthly-enrolments', async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+
+// GET /api/analytics/at-risk — students with low attendance OR low grades
+router.get('/at-risk', async (req, res, next) => {
+  try {
+    const attThreshold = Number(req.query.attThreshold) || 75;
+    const gradeThreshold = Number(req.query.gradeThreshold) || 50;
+
+    const students = await Student.find({ status: 'active' }).select('studentId firstName lastName email enrolledCourses');
+
+    const results = await Promise.all(students.map(async (s) => {
+      const [totalAtt, presentAtt, gradeAgg] = await Promise.all([
+        Attendance.countDocuments({ student: s._id }),
+        Attendance.countDocuments({ student: s._id, status: { $in: ['present', 'late'] } }),
+        Grade.aggregate([
+          { $match: { student: new mongoose.Types.ObjectId(s._id) } },
+          { $group: { _id: null, avg: { $avg: { $multiply: [{ $divide: ['$score', '$maxScore'] }, 100] } } } },
+        ]),
+      ]);
+
+      const attRate = totalAtt > 0 ? Math.round((presentAtt / totalAtt) * 100) : null;
+      const avgGrade = gradeAgg[0] ? Math.round(gradeAgg[0].avg * 10) / 10 : null;
+
+      const lowAtt = attRate !== null && attRate < attThreshold;
+      const lowGrade = avgGrade !== null && avgGrade < gradeThreshold;
+      if (!lowAtt && !lowGrade) return null;
+
+      const riskLevel = (lowAtt && lowGrade) ? 'high' : 'medium';
+      return { student: s, attRate, avgGrade, lowAtt, lowGrade, riskLevel };
+    }));
+
+    const atRisk = results
+      .filter(Boolean)
+      .sort((a, b) => (b.riskLevel === 'high' ? 1 : 0) - (a.riskLevel === 'high' ? 1 : 0));
+
+    res.json({ success: true, data: atRisk, count: atRisk.length });
+  } catch (err) { next(err); }
+});
+
 module.exports = router;
+

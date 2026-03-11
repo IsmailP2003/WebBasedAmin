@@ -15,6 +15,10 @@ const gradeRoutes = require('./routes/grades');
 const analyticsRoutes = require('./routes/analytics');
 const auditRoutes = require('./routes/audit');
 const evaluationRoutes = require('./routes/evaluation');
+const userRoutes = require('./routes/users');
+const announcementRoutes = require('./routes/announcements');
+const notificationRoutes = require('./routes/notifications');
+const materialRoutes = require('./routes/materials');
 
 const app = express();
 
@@ -42,9 +46,12 @@ const authLimiter = rateLimit({
 app.use('/api/', limiter);
 app.use('/api/auth', authLimiter);
 
-// Body parsing
-app.use(express.json({ limit: '10kb' }));
+// Body parsing (increased limit to handle file metadata)
+app.use(express.json({ limit: '25kb' }));
 app.use(express.urlencoded({ extended: true }));
+
+// Serve uploaded files statically (with auth guard done at route level)
+app.use('/uploads', express.static(require('path').join(__dirname, '../uploads')));
 
 // HTTP logging (dev only)
 if (process.env.NODE_ENV === 'development') {
@@ -60,6 +67,10 @@ app.use('/api/grades', gradeRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/audit', auditRoutes);
 app.use('/api/evaluation', evaluationRoutes);
+app.use('/api/users', userRoutes);
+app.use('/api/announcements', announcementRoutes);
+app.use('/api/notifications', notificationRoutes);
+app.use('/api/courses/:courseId/materials', materialRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

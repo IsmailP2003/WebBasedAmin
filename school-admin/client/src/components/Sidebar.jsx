@@ -3,13 +3,25 @@ import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 
 const navItems = [
-  { to: '/dashboard',  label: 'Dashboard',  icon: '📊', roles: ['admin','teacher','student'] },
-  { to: '/students',   label: 'Students',   icon: '👩‍🎓', roles: ['admin','teacher'] },
-  { to: '/courses',    label: 'Courses',    icon: '📚', roles: ['admin','teacher'] },
-  { to: '/attendance', label: 'Attendance', icon: '📋', roles: ['admin','teacher'] },
-  { to: '/grades',     label: 'Grades',     icon: '📝', roles: ['admin','teacher'] },
-  { to: '/evaluation', label: 'Evaluation', icon: '⭐', roles: ['admin','teacher','student'] },
-  { to: '/audit',      label: 'Audit Log',  icon: '🔍', roles: ['admin'] },
+  // Admin + Teacher views
+  { to: '/dashboard', label: 'Dashboard', icon: '📊', roles: ['admin', 'teacher'] },
+  { to: '/students', label: 'Students', icon: '👩‍🎓', roles: ['admin', 'teacher'] },
+  { to: '/courses', label: 'Courses', icon: '📚', roles: ['admin', 'teacher'] },
+  { to: '/attendance', label: 'Attendance', icon: '📋', roles: ['admin', 'teacher'] },
+  { to: '/grades', label: 'Grades', icon: '📝', roles: ['admin', 'teacher'] },
+  { to: '/timetable', label: 'Timetable', icon: '📅', roles: ['admin', 'teacher'] },
+  { to: '/announcements', label: 'Announcements', icon: '📢', roles: ['admin', 'teacher'] },
+  { to: '/at-risk', label: 'At-Risk', icon: '⚠️', roles: ['admin', 'teacher'] },
+  { to: '/evaluation', label: 'Evaluation', icon: '⭐', roles: ['admin', 'teacher'] },
+  { to: '/audit', label: 'Audit Log', icon: '🔍', roles: ['admin'] },
+  { to: '/users', label: 'Users', icon: '👥', roles: ['admin'] },
+  // Student portal
+  { to: '/my-dashboard', label: 'My Dashboard', icon: '🏠', roles: ['student'] },
+  { to: '/my-grades', label: 'My Grades', icon: '📝', roles: ['student'] },
+  { to: '/my-attendance', label: 'My Attendance', icon: '📋', roles: ['student'] },
+  { to: '/announcements', label: 'Announcements', icon: '📢', roles: ['student'] },
+  { to: '/timetable', label: 'Timetable', icon: '📅', roles: ['student'] },
+  { to: '/evaluation', label: 'Evaluation', icon: '⭐', roles: ['student'] },
 ]
 
 export default function Sidebar() {

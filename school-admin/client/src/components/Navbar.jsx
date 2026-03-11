@@ -1,14 +1,22 @@
 import { useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import NotificationBell from './NotificationBell'
 
 const pageTitles = {
-  '/dashboard':  { title: 'Dashboard',     subtitle: 'Overview of your school administration system' },
-  '/students':   { title: 'Students',      subtitle: 'Manage student records and enrolments' },
-  '/courses':    { title: 'Courses',       subtitle: 'Manage courses and class assignments' },
-  '/attendance': { title: 'Attendance',    subtitle: 'Track and record student attendance' },
-  '/grades':     { title: 'Grades',        subtitle: 'Log and view student grades and assessments' },
-  '/evaluation': { title: 'Evaluation',    subtitle: 'System Usability Scale (SUS) evaluation' },
-  '/audit':      { title: 'Audit Log',     subtitle: 'System activity and change history' },
+  '/dashboard': { title: 'Dashboard', subtitle: 'Overview of your school administration system' },
+  '/students': { title: 'Students', subtitle: 'Manage student records and enrolments' },
+  '/courses': { title: 'Courses', subtitle: 'Manage courses and class assignments' },
+  '/attendance': { title: 'Attendance', subtitle: 'Track and record student attendance' },
+  '/grades': { title: 'Grades', subtitle: 'Log and view student grades and assessments' },
+  '/evaluation': { title: 'Evaluation', subtitle: 'System Usability Scale (SUS) evaluation' },
+  '/audit': { title: 'Audit Log', subtitle: 'System activity and change history' },
+  '/users': { title: 'User Management', subtitle: 'Create, edit, and manage system accounts' },
+  '/announcements': { title: 'Announcements', subtitle: 'School-wide announcements and notices' },
+  '/at-risk': { title: 'At-Risk Students', subtitle: 'Identify students needing intervention' },
+  '/timetable': { title: 'Timetable', subtitle: 'Weekly schedule for all courses' },
+  '/my-dashboard': { title: 'My Dashboard', subtitle: 'Your personal learning overview' },
+  '/my-grades': { title: 'My Grades', subtitle: 'Your grades and assessment results' },
+  '/my-attendance': { title: 'My Attendance', subtitle: 'Your attendance records' },
 }
 
 export default function Navbar() {
@@ -43,6 +51,7 @@ export default function Navbar() {
             Logged in as <span style={{ color: 'var(--accent)' }}>{user?.role}</span>
           </div>
         </div>
+        <NotificationBell />
         <div style={{
           width: 38, height: 38, borderRadius: '50%',
           background: 'var(--accent)', color: '#fff',
