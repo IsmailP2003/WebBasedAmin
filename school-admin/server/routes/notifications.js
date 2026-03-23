@@ -21,6 +21,15 @@ router.get('/', async (req, res, next) => {
     } catch (err) { next(err); }
 });
 
+// PATCH /api/notifications/read-all — mark all as read
+// NOTE: must be declared BEFORE /:id/read to avoid Express matching "read-all" as :id
+router.patch('/read-all', async (req, res, next) => {
+    try {
+        await Notification.updateMany({ user: req.user._id, read: false }, { read: true });
+        res.json({ success: true, message: 'All notifications marked as read' });
+    } catch (err) { next(err); }
+});
+
 // PATCH /api/notifications/:id/read — mark single as read
 router.patch('/:id/read', async (req, res, next) => {
     try {
@@ -29,14 +38,6 @@ router.patch('/:id/read', async (req, res, next) => {
             { read: true }
         );
         res.json({ success: true });
-    } catch (err) { next(err); }
-});
-
-// PATCH /api/notifications/read-all — mark all as read
-router.patch('/read-all', async (req, res, next) => {
-    try {
-        await Notification.updateMany({ user: req.user._id, read: false }, { read: true });
-        res.json({ success: true, message: 'All notifications marked as read' });
     } catch (err) { next(err); }
 });
 

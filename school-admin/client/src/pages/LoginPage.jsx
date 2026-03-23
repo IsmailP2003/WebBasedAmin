@@ -4,101 +4,139 @@ import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('')
-  const [password, setPassword] = useState('')
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
   const { login } = useAuth()
   const toast = useToast()
   const navigate = useNavigate()
+  const [form, setForm] = useState({ email: '', password: '' })
+  const [loading, setLoading] = useState(false)
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setError('')
     setLoading(true)
     try {
-      const user = await login(email, password)
+      const user = await login(form.email, form.password)
       toast.success(`Welcome back, ${user.name}!`)
-      navigate('/dashboard')
+      navigate(user.role === 'student' ? '/my-dashboard' : '/dashboard', { replace: true })
     } catch (err) {
-      const msg = err.response?.data?.message || 'Login failed. Please check your credentials.'
-      setError(msg)
+      toast.error(err.response?.data?.message || 'Invalid email or password.')
     } finally {
       setLoading(false)
     }
   }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'var(--bg-primary)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '1rem',
-      position: 'relative',
-      overflow: 'hidden',
-    }}>
-      {/* Background decoration */}
-      <div style={{
-        position: 'absolute', width: 600, height: 600,
-        background: 'radial-gradient(circle, rgba(79,142,247,0.08) 0%, transparent 70%)',
-        top: -200, right: -200, pointerEvents: 'none',
-      }} />
-      <div style={{
-        position: 'absolute', width: 400, height: 400,
-        background: 'radial-gradient(circle, rgba(34,197,94,0.05) 0%, transparent 70%)',
-        bottom: -100, left: -100, pointerEvents: 'none',
-      }} />
+    <div style={{ minHeight: '100vh', display: 'flex', fontFamily: "'Inter', sans-serif", background: '#f0f2f5' }}>
 
-      <div style={{ width: '100%', maxWidth: 440, animation: 'slideUp 0.4s ease' }}>
-        {/* Logo */}
-        <div style={{ textAlign: 'center', marginBottom: '2.5rem' }}>
+      {/* Left — institutional panel */}
+      <div style={{
+        width: '44%',
+        background: '#0f2d26',
+        display: 'flex', flexDirection: 'column',
+        alignItems: 'center', justifyContent: 'center',
+        padding: '3rem', position: 'relative', overflow: 'hidden',
+      }}>
+        {/* subtle grid pattern */}
+        <div style={{
+          position: 'absolute', inset: 0, opacity: 0.03,
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px)',
+          backgroundSize: '28px 28px',
+        }} />
+
+        <div style={{ position: 'relative', textAlign: 'center', maxWidth: 320 }}>
+          {/* Icon */}
           <div style={{
-            width: 64, height: 64, background: 'var(--accent)',
-            borderRadius: 18, display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '2rem', fontWeight: 800, color: '#fff', margin: '0 auto 1.25rem',
-            boxShadow: '0 8px 32px rgba(79,142,247,0.4)',
-          }}>S</div>
-          <h1 style={{ fontSize: 'var(--text-3xl)', fontWeight: 800, color: 'var(--text-primary)' }}>
+            width: 72, height: 72, margin: '0 auto 1.5rem',
+            background: 'rgba(255,255,255,0.08)',
+            border: '2px solid rgba(255,255,255,0.15)',
+            borderRadius: 16,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+          }}>
+            <svg width="34" height="34" viewBox="0 0 24 24" fill="white" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 3L1 9l11 6 9-4.91V17h2V9L12 3z"/>
+              <path d="M5 13.18v4L12 21l7-3.82v-4L12 17l-7-3.82z"/>
+            </svg>
+          </div>
+
+          <h1 style={{
+            fontFamily: "'Lora', Georgia, serif",
+            fontSize: '1.7rem', fontWeight: 600,
+            color: '#ffffff', lineHeight: 1.2, marginBottom: '0.35rem',
+          }}>
             SchoolAdmin
           </h1>
-          <p style={{ color: 'var(--text-muted)', fontSize: 'var(--text-sm)', marginTop: '0.5rem' }}>
-            Centralised School Administration System
+          <p style={{
+            fontSize: '0.65rem', color: 'rgba(255,255,255,0.4)',
+            fontWeight: 700, textTransform: 'uppercase',
+            letterSpacing: '0.2em', marginBottom: '2rem',
+          }}>
+            Management System
           </p>
+
+          {/* Divider */}
+          <div style={{
+            width: 40, height: 1,
+            background: 'rgba(255,255,255,0.2)',
+            margin: '0 auto 2rem',
+          }} />
+
+          <p style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.8, marginBottom: '2.5rem' }}>
+            A comprehensive platform for school administration, academic records, and institutional management.
+          </p>
+
+          {/* Feature list */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.85rem', textAlign: 'left' }}>
+            {[
+              ['Student Registry',  'Secure enrolment records with GDPR compliance'],
+              ['Attendance Tracking','Real-time register with absence analytics'],
+              ['Gradebook',         'Assessment management and reporting'],
+              ['At-Risk Monitoring','Early intervention for struggling students'],
+            ].map(([title, desc]) => (
+              <div key={title} style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
+                <div style={{
+                  width: 6, height: 6, borderRadius: '50%',
+                  background: 'rgba(255,255,255,0.35)', flexShrink: 0, marginTop: '0.45rem',
+                }} />
+                <div>
+                  <div style={{ fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)', marginBottom: '0.1rem' }}>{title}</div>
+                  <div style={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.35)' }}>{desc}</div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
+      </div>
 
-        {/* Card */}
-        <div className="card" style={{ padding: '2.5rem' }}>
-          <h2 style={{ fontSize: 'var(--text-xl)', fontWeight: 700, marginBottom: '0.5rem' }}>Sign in</h2>
-          <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', marginBottom: '2rem' }}>
-            Enter your credentials to access the system
-          </p>
-
-          {error && (
-            <div style={{
-              background: 'var(--danger-light)', border: '1px solid var(--danger)',
-              borderRadius: 'var(--radius)', padding: '0.75rem 1rem',
-              color: 'var(--danger)', fontSize: 'var(--text-sm)', marginBottom: '1.5rem',
-              display: 'flex', alignItems: 'center', gap: '0.5rem',
+      {/* Right — sign in form */}
+      <div style={{
+        flex: 1,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: '3rem', background: '#ffffff',
+      }}>
+        <div style={{ width: '100%', maxWidth: 400 }}>
+          <div style={{ marginBottom: '2rem' }}>
+            <h2 style={{
+              fontFamily: "'Lora', Georgia, serif",
+              fontSize: '1.5rem', fontWeight: 600,
+              color: '#111827', marginBottom: '0.35rem',
             }}>
-              ⚠️ {error}
-            </div>
-          )}
+              Sign in
+            </h2>
+            <p style={{ fontSize: '0.82rem', color: '#6b7280' }}>
+              Enter your institutional credentials to continue
+            </p>
+          </div>
 
-          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+          <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
             <div className="form-group">
-              <label className="form-label" htmlFor="email">Email address</label>
+              <label className="form-label" htmlFor="email">Email Address</label>
               <input
                 id="email"
-                type="email"
                 className="form-input"
-                placeholder="you@school.com"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                required
-                autoComplete="email"
-                aria-label="Email address"
+                type="email"
+                value={form.email}
+                onChange={e => setForm(p => ({ ...p, email: e.target.value }))}
+                placeholder="name@institution.edu"
+                required autoFocus
               />
             </div>
 
@@ -106,14 +144,12 @@ export default function LoginPage() {
               <label className="form-label" htmlFor="password">Password</label>
               <input
                 id="password"
-                type="password"
                 className="form-input"
-                placeholder="••••••••"
-                value={password}
-                onChange={e => setPassword(e.target.value)}
+                type="password"
+                value={form.password}
+                onChange={e => setForm(p => ({ ...p, password: e.target.value }))}
+                placeholder="Enter your password"
                 required
-                autoComplete="current-password"
-                aria-label="Password"
               />
             </div>
 
@@ -121,30 +157,51 @@ export default function LoginPage() {
               type="submit"
               className="btn btn-primary"
               disabled={loading}
-              style={{ width: '100%', justifyContent: 'center', padding: '0.8rem', fontSize: 'var(--text-base)', marginTop: '0.5rem' }}
-              aria-label="Sign in"
+              style={{ width: '100%', justifyContent: 'center', padding: '0.75rem', marginTop: '0.25rem' }}
             >
               {loading ? (
-                <><div style={{ width: 18, height: 18, border: '2px solid rgba(255,255,255,0.4)', borderTopColor: '#fff', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} /> Signing in...</>
-              ) : '🔐 Sign In'}
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <span style={{ width: 14, height: 14, border: '2px solid rgba(255,255,255,0.3)', borderTopColor: '#fff', borderRadius: '50%', display: 'inline-block', animation: 'spin 0.7s linear infinite' }} />
+                  Signing in…
+                </span>
+              ) : 'Sign In'}
             </button>
           </form>
 
-          {/* Demo credentials hint */}
+          {/* Demo credentials */}
           <div style={{
-            marginTop: '1.5rem', padding: '1rem',
-            background: 'var(--accent-light)', borderRadius: 'var(--radius)',
-            fontSize: 'var(--text-xs)', color: 'var(--accent)',
+            marginTop: '2rem', padding: '1rem 1.1rem',
+            background: '#f9fafb', border: '1px solid #e5e7eb',
+            borderRadius: 10, fontSize: '0.75rem',
           }}>
-            <div style={{ fontWeight: 600, marginBottom: '0.35rem' }}>🧪 Demo credentials (after seeding):</div>
-            <div>Admin: admin@schooladmin.com / Admin1234!</div>
-            <div>Teacher: sarah.johnson@schooladmin.com / Teacher1234!</div>
+            <div style={{
+              fontWeight: 700, color: '#374151',
+              textTransform: 'uppercase', letterSpacing: '0.06em',
+              marginBottom: '0.65rem', fontSize: '0.65rem',
+            }}>
+              Demo Credentials
+            </div>
+            {[
+              ['admin@schooladmin.com',         'Administrator'],
+              ['sarah.johnson@schooladmin.com', 'Faculty Member'],
+              ['david.chen@schooladmin.com',    'Faculty Member'],
+            ].map(([email, role]) => (
+              <div key={email} style={{ display: 'flex', justifyContent: 'space-between', gap: '0.5rem', padding: '0.25rem 0', borderBottom: '1px solid #f3f4f6' }}>
+                <code style={{ fontSize: '0.72rem', color: '#374151', fontFamily: 'monospace' }}>{email}</code>
+                <span style={{ fontSize: '0.65rem', color: '#0f5c4e', fontWeight: 700, flexShrink: 0 }}>{role}</span>
+              </div>
+            ))}
+            <div style={{ marginTop: '0.6rem', color: '#6b7280', lineHeight: 1.7 }}>
+              Admin: <code style={{ background: '#f3f4f6', padding: '0.1rem 0.3rem', borderRadius: 3, fontSize: '0.72rem' }}>Admin1234!</code>
+              {' · '}
+              Teacher: <code style={{ background: '#f3f4f6', padding: '0.1rem 0.3rem', borderRadius: 3, fontSize: '0.72rem' }}>Teacher1234!</code>
+            </div>
           </div>
-        </div>
 
-        <p style={{ textAlign: 'center', color: 'var(--text-muted)', fontSize: 'var(--text-xs)', marginTop: '1.5rem' }}>
-          Protected by role-based access control • Data encrypted in transit
-        </p>
+          <p style={{ textAlign: 'center', fontSize: '0.68rem', color: '#d1d5db', marginTop: '2rem' }}>
+            © {new Date().getFullYear()} SchoolAdmin · Academic Management System
+          </p>
+        </div>
       </div>
     </div>
   )

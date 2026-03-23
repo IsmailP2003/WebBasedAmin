@@ -43,8 +43,10 @@ router.get('/', async (req, res, next) => {
         ];
 
         const query = {
-            $or: orFilter,
-            $or: [{ expiresAt: null }, { expiresAt: { $gte: new Date() } }],
+            $and: [
+                { $or: orFilter },
+                { $or: [{ expiresAt: null }, { expiresAt: { $gte: new Date() } }] },
+            ],
         };
 
         const [announcements, total] = await Promise.all([
@@ -72,7 +74,17 @@ router.post('/',
             const errors = validationResult(req);
             if (!errors.isEmpty()) return res.status(400).json({ success: false, errors: errors.array() });
 
-            const announcement = await Announcement.create({ ...req.body, author: req.user._id });
+            // Sanitise target: strip role/course when not needed to avoid enum errors
+            const rawTarget = req.body.target || {};
+            const cleanTarget = { type: rawTarget.type || 'all' };
+            if (cleanTarget.type === 'role' && rawTarget.role) cleanTarget.role = rawTarget.role;
+            if (cleanTarget.type === 'course' && rawTarget.course) cleanTarget.course = rawTarget.course;
+
+            const announcement = await Announcement.create({
+                ...req.body,
+                target: cleanTarget,
+                author: req.user._id,
+            });
             await announcement.populate('author', 'name role');
 
             // Fan out notifications async

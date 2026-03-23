@@ -95,7 +95,7 @@ function AppRoutes() {
         } />
       </Route>
 
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<Navigate to={user?.role === 'student' ? '/my-dashboard' : '/dashboard'} replace />} />
     </Routes>
   )
 }

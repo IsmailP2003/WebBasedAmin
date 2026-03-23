@@ -14,7 +14,11 @@ export default function AttendancePage() {
   const [saving, setSaving] = useState(false)
   const [hasExisting, setHasExisting] = useState(false)
 
-  useEffect(() => { coursesAPI.getAll().then(r => setCourses(r.data.data)) }, [])
+  useEffect(() => {
+    coursesAPI.getAll()
+      .then(r => setCourses(r.data.data))
+      .catch(() => toast.error('Failed to load courses'))
+  }, []) // eslint-disable-line react-hooks/exhaustive-deps
 
   const loadAttendance = async () => {
     if (!courseId) return

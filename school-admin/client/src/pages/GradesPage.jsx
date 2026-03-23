@@ -26,20 +26,26 @@ export default function GradesPage() {
   const [form, setForm] = useState(emptyForm)
   const [submitting, setSubmitting] = useState(false)
 
+  // Fetch students + courses once on mount (reference data)
+  useEffect(() => {
+    Promise.all([
+      studentsAPI.getAll({ limit: 200 }),
+      coursesAPI.getAll(),
+    ]).then(([s, c]) => {
+      setStudents(s.data.data)
+      setCourses(c.data.data)
+    }).catch(() => toast.error('Failed to load reference data'))
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const load = useCallback(async () => {
     setLoading(true)
     try {
       const params = {}
       if (filter.studentId) params.studentId = filter.studentId
       if (filter.courseId) params.courseId = filter.courseId
-      const [g, s, c] = await Promise.all([
-        gradesAPI.get(params),
-        students.length === 0 ? studentsAPI.getAll({ limit: 200 }) : Promise.resolve({ data: { data: students } }),
-        courses.length === 0 ? coursesAPI.getAll() : Promise.resolve({ data: { data: courses } }),
-      ])
+      const g = await gradesAPI.get(params)
       setGrades(g.data.data)
-      if (students.length === 0) setStudents(s.data.data)
-      if (courses.length === 0) setCourses(c.data.data)
     } catch { toast.error('Failed to load grades') }
     finally { setLoading(false) }
   }, [filter])
