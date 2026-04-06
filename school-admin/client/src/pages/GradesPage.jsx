@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useToast } from '../context/ToastContext'
 import { useAuth } from '../context/AuthContext'
 import { gradesAPI, studentsAPI, coursesAPI } from '../api/axios'
+import { useSort, SortableHeader } from '../hooks/useSort.jsx'
 
 const TYPES = ['assignment','exam','quiz','project','presentation','other']
 
@@ -25,6 +26,13 @@ export default function GradesPage() {
   const [modal, setModal] = useState(null)
   const [form, setForm] = useState(emptyForm)
   const [submitting, setSubmitting] = useState(false)
+
+  const pct = (score, max) => max > 0 ? Math.round((score / max) * 100) : 0
+  const letterGrade = (p) => p >= 90 ? 'A+' : p >= 80 ? 'A' : p >= 70 ? 'B' : p >= 60 ? 'C' : p >= 50 ? 'D' : 'F'
+
+  // Enrich grades with a computed pct field for sorting
+  const enrichedGrades = grades.map(g => ({ ...g, _pct: pct(g.score, g.maxScore) }))
+  const { sorted: sortedGrades, sortKey, sortDir, handleSort } = useSort(enrichedGrades, '_pct', 'desc')
 
   // Fetch students + courses once on mount (reference data)
   useEffect(() => {
@@ -72,8 +80,7 @@ export default function GradesPage() {
     catch { toast.error('Delete failed') }
   }
 
-  const pct = (score, max) => max > 0 ? Math.round((score / max) * 100) : 0
-  const letterGrade = (p) => p >= 90 ? 'A+' : p >= 80 ? 'A' : p >= 70 ? 'B' : p >= 60 ? 'C' : p >= 50 ? 'D' : 'F'
+
 
   return (
     <div>
@@ -116,10 +123,18 @@ export default function GradesPage() {
           <div className="table-wrapper">
             <table className="data-table">
               <thead>
-                <tr><th>Student</th><th>Course</th><th>Assessment</th><th>Score</th><th>Grade</th><th>Date</th><th>Actions</th></tr>
+                <tr>
+                  <SortableHeader col="student.lastName" label="Student" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                  <SortableHeader col="course.courseCode" label="Course" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                  <SortableHeader col="assessmentName" label="Assessment" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                  <SortableHeader col="_pct" label="Score" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                  <SortableHeader col="_pct" label="Grade" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                  <SortableHeader col="createdAt" label="Date" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                  <th>Actions</th>
+                </tr>
               </thead>
               <tbody>
-                {grades.map(g => {
+                {sortedGrades.map(g => {
                   const p = pct(g.score, g.maxScore)
                   return (
                     <tr key={g._id}>

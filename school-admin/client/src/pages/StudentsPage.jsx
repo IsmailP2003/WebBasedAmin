@@ -1,7 +1,8 @@
-import { useEffect, useState, useCallback, useRef } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { studentsAPI, attendanceAPI, gradesAPI } from '../api/axios'
+import { useSort, SortableHeader } from '../hooks/useSort.jsx'
 
 const GENDERS = ['male','female','other','prefer_not_to_say']
 const STATUSES = ['active','inactive','graduated','suspended']
@@ -38,6 +39,10 @@ export default function StudentsPage() {
   const [submitting, setSubmitting] = useState(false)
   const [detailData, setDetailData] = useState(null)
   const [detailLoading, setDetailLoading] = useState(false)
+
+  // Enrich students for sorting
+  const enriched = students.map(s => ({ ...s, _fullName: `${s.firstName} ${s.lastName}`, _courseCount: s.enrolledCourses?.length ?? 0 }))
+  const { sorted: sortedStudents, sortKey, sortDir, handleSort } = useSort(enriched, '_fullName', 'asc')
 
   const debouncedSearch = useDebounce(search, 350)
 
@@ -140,10 +145,17 @@ export default function StudentsPage() {
           <div className="table-wrapper">
             <table className="data-table">
               <thead>
-                <tr><th>ID</th><th>Name</th><th>Email</th><th>Status</th><th>Courses</th><th>Actions</th></tr>
+                <tr>
+                  <SortableHeader col="studentId" label="ID" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                  <SortableHeader col="_fullName" label="Name" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                  <SortableHeader col="email" label="Email" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                  <SortableHeader col="status" label="Status" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                  <SortableHeader col="_courseCount" label="Courses" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                  <th>Actions</th>
+                </tr>
               </thead>
               <tbody>
-                {students.map(s => (
+                {sortedStudents.map(s => (
                   <tr key={s._id} style={{ cursor: 'pointer' }} onClick={() => openDetail(s)}>
                     <td><code style={{ color:'var(--accent)', fontSize:'var(--text-xs)' }}>{s.studentId}</code></td>
                     <td>

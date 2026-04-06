@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { usersAPI } from '../api/axios'
+import { useSort, SortableHeader } from '../hooks/useSort.jsx'
 
 const ROLES = ['admin', 'teacher', 'student']
 const ROLE_COLORS = { admin: 'danger', teacher: 'success', student: 'accent' }
@@ -28,9 +29,10 @@ export default function UsersPage() {
   const [roleFilter, setRoleFilter] = useState('')
   const [statusFilter, setStatusFilter] = useState('active')
   const [search, setSearch]       = useState('')
-  const [modal, setModal]         = useState(null) // 'add' | 'edit' | 'deactivate'
+  const [modal, setModal]         = useState(null) // 'add' | 'edit' | 'deactivate' | 'reset-password'
   const [selected, setSelected]   = useState(null)
   const [form, setForm]           = useState(emptyForm)
+  const [resetPwForm, setResetPwForm] = useState({ newPassword: '', confirm: '' })
   const [submitting, setSubmitting] = useState(false)
 
   const load = useCallback(async () => {
@@ -59,6 +61,8 @@ export default function UsersPage() {
       u.email.toLowerCase().includes(search.toLowerCase())
     return matchStatus && matchSearch
   })
+
+  const { sorted: sortedUsers, sortKey, sortDir, handleSort } = useSort(filtered, 'name', 'asc')
 
   // Stats
   const stats = {
@@ -107,8 +111,27 @@ export default function UsersPage() {
     } catch { toast.error('Reactivate failed') }
   }
 
+  const handleResetPassword = async (e) => {
+    e.preventDefault()
+    if (resetPwForm.newPassword !== resetPwForm.confirm) {
+      toast.error('Passwords do not match')
+      return
+    }
+    setSubmitting(true)
+    try {
+      await usersAPI.resetPassword(selected._id, resetPwForm.newPassword)
+      toast.success(`Password reset for ${selected.name}!`)
+      setModal(null)
+    } catch (err) { toast.error(err.response?.data?.message || 'Reset failed') }
+    finally { setSubmitting(false) }
+  }
+
   const openEdit = (u) => {
     setSelected(u); setForm({ name: u.name, email: u.email, password: '', role: u.role }); setModal('edit')
+  }
+
+  const openResetPw = (u) => {
+    setSelected(u); setResetPwForm({ newPassword: '', confirm: '' }); setModal('reset-password')
   }
 
   const close = () => { setModal(null); setSelected(null) }
@@ -126,21 +149,33 @@ export default function UsersPage() {
         </button>
       </div>
 
-      {/* Stats cards */}
+      {/* Stats cards — click to filter by role */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px,1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
         {[
-          { label: 'Total Users',  value: stats.total,    icon: '👥',  color: 'blue' },
-          { label: 'Admins',       value: stats.admins,   icon: '🛡️',  color: 'cyan' },
-          { label: 'Teachers',     value: stats.teachers, icon: '👩‍🏫', color: 'green' },
-          { label: 'Students',     value: stats.students, icon: '👩‍🎓', color: 'accent' },
-          { label: 'Deactivated',  value: stats.inactive, icon: '🚫',  color: 'amber' },
-        ].map(s => (
-          <div key={s.label} className={`stat-card ${s.color}`}>
-            <div className={`stat-icon ${s.color}`}>{s.icon}</div>
-            <div className="stat-value" style={{ fontSize: 'var(--text-2xl)' }}>{s.value}</div>
-            <div className="stat-label">{s.label}</div>
-          </div>
-        ))}
+          { label: 'Total Users',  value: stats.total,    icon: '👥',  color: 'blue',   roleFilter: '' },
+          { label: 'Admins',       value: stats.admins,   icon: '🛡️',  color: 'cyan',   roleFilter: 'admin' },
+          { label: 'Teachers',     value: stats.teachers, icon: '👩‍🏫', color: 'green',  roleFilter: 'teacher' },
+          { label: 'Students',     value: stats.students, icon: '👩‍🎓', color: 'accent', roleFilter: 'student' },
+          { label: 'Deactivated',  value: stats.inactive, icon: '🚫',  color: 'amber',  roleFilter: null },
+        ].map(s => {
+          const isActive = s.roleFilter !== null ? roleFilter === s.roleFilter : statusFilter === 'inactive'
+          return (
+            <div
+              key={s.label}
+              className={`stat-card ${s.color}`}
+              onClick={() => {
+                if (s.roleFilter !== null) { setRoleFilter(s.roleFilter); setStatusFilter('active') }
+                else { setStatusFilter(v => v === 'inactive' ? 'all' : 'inactive'); setRoleFilter('') }
+              }}
+              style={{ cursor: 'pointer', outline: isActive ? '2px solid var(--accent)' : 'none', outlineOffset: 2, transition: 'outline 0.15s' }}
+              title={s.roleFilter !== null ? `Filter by ${s.label}` : 'Toggle inactive users'}
+            >
+              <div className={`stat-icon ${s.color}`}>{s.icon}</div>
+              <div className="stat-value" style={{ fontSize: 'var(--text-2xl)' }}>{s.value}</div>
+              <div className="stat-label">{s.label}</div>
+            </div>
+          )
+        })}
       </div>
 
       {/* Filters */}
@@ -180,16 +215,16 @@ export default function UsersPage() {
           <table className="data-table">
             <thead>
               <tr>
-                <th>User</th>
-                <th>Role</th>
-                <th>Status</th>
-                <th>Last Login</th>
-                <th>Created</th>
+                <SortableHeader col="name" label="User" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                <SortableHeader col="role" label="Role" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                <SortableHeader col="isActive" label="Status" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                <SortableHeader col="lastLogin" label="Last Login" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                <SortableHeader col="createdAt" label="Created" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
                 <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.map(u => (
+              {sortedUsers.map(u => (
                 <tr key={u._id} style={{ opacity: u.isActive ? 1 : 0.55 }}>
                   <td>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
@@ -229,7 +264,11 @@ export default function UsersPage() {
                       {u.isActive ? (
                         <>
                           {u._id !== currentUser?._id && (
-                            <button className="btn btn-icon btn-sm" onClick={() => openEdit(u)} title="Edit" aria-label={`Edit ${u.name}`}>✏️</button>
+                            <button className="btn btn-icon btn-sm" onClick={() => openEdit(u)} title="Edit user" aria-label={`Edit ${u.name}`}>✏️</button>
+                          )}
+                          {u._id !== currentUser?._id && (
+                            <button className="btn btn-icon btn-sm" onClick={() => openResetPw(u)}
+                              title="Reset password" aria-label={`Reset password for ${u.name}`} style={{ color: 'var(--accent)' }}>🔑</button>
                           )}
                           {u._id !== currentUser?._id && (
                             <button className="btn btn-icon btn-sm" onClick={() => { setSelected(u); setModal('deactivate') }}
@@ -354,6 +393,52 @@ export default function UsersPage() {
                 <button type="button" className="btn btn-secondary" onClick={close}>Cancel</button>
                 <button type="submit" className="btn btn-primary" disabled={submitting}>
                   {submitting ? 'Saving…' : 'Save Changes'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Reset Password Modal */}
+      {modal === 'reset-password' && selected && (
+        <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Reset Password">
+          <div className="modal" style={{ maxWidth: 440 }}>
+            <div className="modal-header">
+              <h3 className="modal-title">🔑 Reset Password — {selected.name}</h3>
+              <button className="btn btn-icon" onClick={close} aria-label="Close">✕</button>
+            </div>
+            <form onSubmit={handleResetPassword}>
+              <div className="modal-body">
+                <div style={{ padding: '0.75rem 1rem', background: 'var(--accent-light)', borderRadius: 'var(--radius)', fontSize: 'var(--text-xs)', color: 'var(--accent)', marginBottom: '1rem' }}>
+                  ⚠️ You are resetting the password for <strong>{selected.name}</strong> ({selected.email}). Share the new password with them securely.
+                </div>
+                <div className="form-group">
+                  <label className="form-label">New Password *</label>
+                  <input
+                    className="form-input" type="password"
+                    value={resetPwForm.newPassword}
+                    onChange={e => setResetPwForm(p => ({ ...p, newPassword: e.target.value }))}
+                    placeholder="Min 6 characters" required minLength={6} autoFocus
+                  />
+                </div>
+                <div className="form-group">
+                  <label className="form-label">Confirm Password *</label>
+                  <input
+                    className="form-input" type="password"
+                    value={resetPwForm.confirm}
+                    onChange={e => setResetPwForm(p => ({ ...p, confirm: e.target.value }))}
+                    placeholder="Re-enter new password" required minLength={6}
+                  />
+                  {resetPwForm.confirm && resetPwForm.newPassword !== resetPwForm.confirm && (
+                    <p style={{ fontSize: 'var(--text-xs)', color: 'var(--danger)', marginTop: '0.25rem' }}>Passwords do not match</p>
+                  )}
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn btn-secondary" onClick={close}>Cancel</button>
+                <button type="submit" className="btn btn-primary" disabled={submitting || !resetPwForm.newPassword || resetPwForm.newPassword !== resetPwForm.confirm}>
+                  {submitting ? 'Resetting…' : '🔑 Reset Password'}
                 </button>
               </div>
             </form>

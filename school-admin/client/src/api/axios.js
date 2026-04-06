@@ -93,6 +93,7 @@ export const usersAPI = {
   update: (id, data) => api.patch(`/users/${id}`, data),
   reactivate: (id) => api.patch(`/users/${id}/reactivate`),
   deactivate: (id) => api.delete(`/users/${id}`),
+  resetPassword: (id, newPassword) => api.patch(`/users/${id}/reset-password`, { newPassword }),
 }
 
 export const announcementsAPI = {

@@ -90,6 +90,35 @@ router.patch('/:id/reactivate', authorize('admin'), async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
+// PATCH /api/users/:id/reset-password — admin sets a new password for any user
+router.patch('/:id/reset-password',
+  authorize('admin'),
+  [body('newPassword').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')],
+  async (req, res, next) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) return res.status(400).json({ success: false, message: errors.array()[0].msg });
+
+      const user = await User.findById(req.params.id).select('+password');
+      if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
+
+      user.password = req.body.newPassword;
+      await user.save(); // pre-save hook hashes it
+
+      await createAuditEntry({
+        action: 'PASSWORD_CHANGED',
+        performedBy: req.user,
+        targetModel: 'User',
+        targetId: user._id,
+        details: `Admin ${req.user.name} reset password for ${user.name} (${user.email})`,
+        req,
+      });
+
+      res.json({ success: true, message: `Password reset successfully for ${user.name}.` });
+    } catch (err) { next(err); }
+  }
+);
+
 // DELETE /api/users/:id — deactivate a user (Admin only, soft delete)
 router.delete('/:id', authorize('admin'), async (req, res, next) => {
   try {

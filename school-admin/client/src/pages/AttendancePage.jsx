@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useToast } from '../context/ToastContext'
 import { attendanceAPI, coursesAPI } from '../api/axios'
+import { useSort, SortableHeader } from '../hooks/useSort.jsx'
 
 const STATUSES = ['present','absent','late','excused']
 
@@ -67,6 +68,7 @@ export default function AttendancePage() {
   const markAll = (status) => setRecords(prev => prev.map(r => ({...r, status})))
 
   const counts = records.reduce((acc, r) => { acc[r.status] = (acc[r.status] || 0) + 1; return acc }, {})
+  const { sorted: sortedRecords, sortKey, sortDir, handleSort } = useSort(records, 'name', 'asc')
 
   return (
     <div>
@@ -140,14 +142,16 @@ export default function AttendancePage() {
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Student</th>
-                  <th>ID</th>
-                  <th>Status</th>
+                  <SortableHeader col="name" label="Student" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                  <SortableHeader col="studentCode" label="ID" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                  <SortableHeader col="status" label="Status" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
                   <th>Notes</th>
                 </tr>
               </thead>
               <tbody>
-                {records.map((r, idx) => (
+                {sortedRecords.map((r) => {
+                  const realIdx = records.findIndex(x => x.studentId === r.studentId)
+                  return (
                   <tr key={r.studentId}>
                     <td style={{ fontWeight: 600 }}>{r.name}</td>
                     <td><code style={{ color: 'var(--accent)', fontSize: 'var(--text-xs)' }}>{r.studentCode}</code></td>
@@ -155,7 +159,7 @@ export default function AttendancePage() {
                       <div className="att-toggle">
                         {STATUSES.map(s => (
                           <button key={s} className={`att-btn ${s} ${r.status === s ? 'active' : ''}`}
-                            onClick={() => toggle(idx, s)} aria-label={`Mark ${r.name} as ${s}`} aria-pressed={r.status === s}>
+                            onClick={() => toggle(realIdx, s)} aria-label={`Mark ${r.name} as ${s}`} aria-pressed={r.status === s}>
                             {s}
                           </button>
                         ))}
@@ -163,11 +167,13 @@ export default function AttendancePage() {
                     </td>
                     <td>
                       <input className="form-input" style={{ padding: '0.3rem 0.6rem', fontSize: 'var(--text-xs)' }}
-                        value={r.notes} onChange={e => setRecords(p => p.map((x,i) => i===idx ? {...x, notes: e.target.value} : x))}
+                        value={r.notes} onChange={e => setRecords(p => p.map((x,i) => i===realIdx ? {...x, notes: e.target.value} : x))}
                         placeholder="Optional note…" aria-label={`Note for ${r.name}`} />
                     </td>
                   </tr>
-                ))}
+                  )
+                })}
+
               </tbody>
             </table>
           </div>

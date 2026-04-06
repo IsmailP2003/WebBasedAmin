@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { announcementsAPI } from '../api/axios'
+import { useSort, SortableHeader } from '../hooks/useSort.jsx'
 
 const PRIORITY_MAP = {
     normal: { label: 'Normal', color: 'var(--text-secondary)', icon: '📢' },
@@ -26,6 +27,7 @@ export default function AnnouncementsPage() {
     const [modal, setModal] = useState(false)
     const [form, setForm] = useState(emptyForm)
     const [submitting, setSubmitting] = useState(false)
+    const [search, setSearch] = useState('')
 
     const load = useCallback(async () => {
         setLoading(true)
@@ -37,6 +39,13 @@ export default function AnnouncementsPage() {
     }, [])
 
     useEffect(() => { load() }, [load])
+
+    const filtered = announcements.filter(a =>
+        !search || a.title.toLowerCase().includes(search.toLowerCase()) || a.author?.name?.toLowerCase().includes(search.toLowerCase())
+    )
+    const PRIORITY_ORDER = { urgent: 0, important: 1, normal: 2 }
+    const enriched = filtered.map(a => ({ ...a, _priorityOrder: PRIORITY_ORDER[a.priority] ?? 2 }))
+    const { sorted: sortedAnnouncements, sortKey, sortDir, handleSort } = useSort(enriched, 'createdAt', 'desc')
 
     const handleSubmit = async (e) => {
         e.preventDefault(); setSubmitting(true)
@@ -78,59 +87,77 @@ export default function AnnouncementsPage() {
             </div>
 
             {loading ? <div className="loading-center"><div className="spinner" /></div> : (
-                announcements.length === 0 ? (
-                    <div className="empty-state">
-                        <div className="empty-state-icon">📭</div>
-                        <h3>No announcements yet</h3>
-                        {canPost && <button className="btn btn-primary" onClick={() => setModal(true)}>📢 Post first announcement</button>}
+            announcements.length === 0 ? (
+                <div className="empty-state">
+                    <div className="empty-state-icon">📭</div>
+                    <h3>No announcements yet</h3>
+                    {canPost && <button className="btn btn-primary" onClick={() => setModal(true)}>📢 Post first announcement</button>}
+                </div>
+            ) : (
+                <>
+                  {/* Search bar */}
+                  <div className="card" style={{ marginBottom: '1rem', padding: '0.75rem 1rem' }}>
+                    <div className="search-bar">
+                      <span>🔍</span>
+                      <input placeholder="Search title or author…" value={search} onChange={e => setSearch(e.target.value)} aria-label="Search announcements" />
+                      {search && <button onClick={() => setSearch('')} style={{ background:'none',border:'none',color:'var(--text-muted)',cursor:'pointer' }}>✕</button>}
                     </div>
-                ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                        {announcements.map(ann => {
-                            const p = PRIORITY_MAP[ann.priority] || PRIORITY_MAP.normal
-                            return (
-                                <div key={ann._id} className="card announcement-card" style={{
-                                    borderLeft: `4px solid ${ann.priority === 'urgent' ? 'var(--danger)' : ann.priority === 'important' ? 'var(--warning)' : 'var(--accent)'}`,
-                                }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '1rem', flexWrap: 'wrap' }}>
-                                        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start', flex: 1 }}>
-                                            <span style={{ fontSize: '1.5rem' }}>{p.icon}</span>
-                                            <div>
-                                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.25rem' }}>
-                                                    {ann.pinned && <span className="badge badge-accent">📌 Pinned</span>}
-                                                    <span className="badge badge-neutral" style={{ color: p.color, textTransform: 'capitalize' }}>{p.label}</span>
-                                                    <span className="badge badge-neutral" style={{ textTransform: 'capitalize' }}>
-                                                        {TARGET_LABELS[ann.target?.type] || 'Everyone'}
-                                                        {ann.target?.role ? ` — ${ann.target.role}` : ''}
-                                                    </span>
-                                                </div>
-                                                <h3 style={{ fontSize: 'var(--text-lg)', fontWeight: 700, marginBottom: '0.5rem' }}>{ann.title}</h3>
-                                                <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>{ann.body}</p>
-                                            </div>
-                                        </div>
-                                        <div style={{ display: 'flex', gap: '0.5rem', flexShrink: 0 }}>
-                                            {user?.role === 'admin' && (
-                                                <button className="btn btn-icon btn-sm" onClick={() => handlePin(ann._id)}
-                                                    title={ann.pinned ? 'Unpin' : 'Pin'} aria-label={ann.pinned ? 'Unpin' : 'Pin announcement'}>
-                                                    {ann.pinned ? '📌' : '📍'}
-                                                </button>
-                                            )}
-                                            {(user?.role === 'admin' || String(ann.author?._id) === String(user?._id)) && (
-                                                <button className="btn btn-icon btn-sm" onClick={() => handleDelete(ann._id)}
-                                                    title="Delete" aria-label="Delete announcement" style={{ color: 'var(--danger)' }}>🗑️</button>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid var(--border)', display: 'flex', gap: '1rem', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
-                                        <span>👤 {ann.author?.name}</span>
-                                        <span style={{ textTransform: 'capitalize' }}>• {ann.author?.role}</span>
-                                        <span>• {formatDate(ann.createdAt)}</span>
-                                        {ann.expiresAt && <span style={{ color: 'var(--warning)' }}>• Expires {formatDate(ann.expiresAt)}</span>}
-                                    </div>
+                  </div>
+
+                  <div className="table-wrapper">
+                    <table className="data-table">
+                      <thead>
+                        <tr>
+                          <SortableHeader col="_priorityOrder" label="Priority" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                          <SortableHeader col="title" label="Title" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                          <SortableHeader col="author.name" label="Author" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                          <SortableHeader col="createdAt" label="Date" sortKey={sortKey} sortDir={sortDir} onSort={handleSort} />
+                          <th>Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {sortedAnnouncements.map(ann => {
+                          const p = PRIORITY_MAP[ann.priority] || PRIORITY_MAP.normal
+                          return (
+                            <tr key={ann._id} style={{ borderLeft: `3px solid ${ann.priority === 'urgent' ? 'var(--danger)' : ann.priority === 'important' ? 'var(--warning)' : 'var(--accent)'}` }}>
+                              <td>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
+                                  {ann.pinned && <span className="badge badge-accent" style={{ fontSize: '0.65rem' }}>📌</span>}
+                                  <span className="badge badge-neutral" style={{ color: p.color, textTransform: 'capitalize', fontSize: '0.7rem' }}>
+                                    {p.icon} {p.label}
+                                  </span>
                                 </div>
-                            )
+                              </td>
+                              <td>
+                                <div style={{ fontWeight: 700, marginBottom: '0.2rem' }}>{ann.title}</div>
+                                <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', maxWidth: 360, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{ann.body}</div>
+                              </td>
+                              <td style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>
+                                <div style={{ fontWeight: 600 }}>{ann.author?.name}</div>
+                                <div style={{ textTransform: 'capitalize', color: 'var(--text-muted)' }}>{ann.author?.role}</div>
+                              </td>
+                              <td style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>{formatDate(ann.createdAt)}</td>
+                              <td>
+                                <div style={{ display: 'flex', gap: '0.4rem' }}>
+                                  {user?.role === 'admin' && (
+                                    <button className="btn btn-icon btn-sm" onClick={() => handlePin(ann._id)}
+                                      title={ann.pinned ? 'Unpin' : 'Pin'} aria-label={ann.pinned ? 'Unpin' : 'Pin announcement'}>
+                                      {ann.pinned ? '📌' : '📍'}
+                                    </button>
+                                  )}
+                                  {(user?.role === 'admin' || String(ann.author?._id) === String(user?._id)) && (
+                                    <button className="btn btn-icon btn-sm" onClick={() => handleDelete(ann._id)}
+                                      title="Delete" aria-label="Delete announcement" style={{ color: 'var(--danger)' }}>🗑️</button>
+                                  )}
+                                </div>
+                              </td>
+                            </tr>
+                          )
                         })}
-                    </div>
+                      </tbody>
+                    </table>
+                  </div>
+                </>
                 )
             )}
 
