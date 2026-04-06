@@ -70,4 +70,44 @@ router.get('/me', protect, async (req, res) => {
   res.json({ success: true, user: req.user });
 });
 
+// PATCH /api/auth/change-password — change own password (requires current password)
+router.patch('/change-password', protect,
+  [
+    body('currentPassword').notEmpty().withMessage('Current password is required'),
+    body('newPassword').isLength({ min: 6 }).withMessage('New password must be at least 6 characters'),
+  ],
+  async (req, res, next) => {
+    try {
+      const errors = validationResult(req);
+      if (!errors.isEmpty()) {
+        return res.status(400).json({ success: false, message: errors.array()[0].msg });
+      }
+
+      const { currentPassword, newPassword } = req.body;
+      const user = await User.findById(req.user._id).select('+password');
+
+      if (!user || !(await user.comparePassword(currentPassword))) {
+        return res.status(401).json({ success: false, message: 'Current password is incorrect.' });
+      }
+      if (currentPassword === newPassword) {
+        return res.status(400).json({ success: false, message: 'New password must differ from the current one.' });
+      }
+
+      user.password = newPassword;
+      await user.save(); // pre-save hook hashes it
+
+      await createAuditEntry({
+        action: 'PASSWORD_CHANGED',
+        performedBy: user._id,
+        targetModel: 'User',
+        targetId: user._id,
+        details: `${user.name} changed their password`,
+        req,
+      });
+
+      res.json({ success: true, message: 'Password updated successfully.' });
+    } catch (err) { next(err); }
+  }
+);
+
 module.exports = router;

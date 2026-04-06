@@ -34,6 +34,7 @@ export default api
 export const authAPI = {
   login: (data) => api.post('/auth/login', data),
   me: () => api.get('/auth/me'),
+  changePassword: (data) => api.patch('/auth/change-password', data),
 }
 
 export const studentsAPI = {

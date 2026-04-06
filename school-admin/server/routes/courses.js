@@ -11,7 +11,9 @@ router.use(protect);
 // GET /api/courses
 router.get('/', async (req, res, next) => {
   try {
-    const courses = await Course.find()
+    // Teachers only see courses they are assigned to
+    const filter = req.user?.role === 'teacher' ? { teacher: req.user._id } : {};
+    const courses = await Course.find(filter)
       .populate('teacher', 'name email')
       .populate('students', 'firstName lastName studentId')
       .sort({ courseCode: 1 });

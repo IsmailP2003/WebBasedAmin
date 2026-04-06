@@ -58,6 +58,10 @@ router.post('/', authorize('admin', 'teacher'), upload.single('file'), async (re
         if (!req.file) return res.status(400).json({ success: false, message: 'No file uploaded' });
         const course = await Course.findById(req.params.courseId);
         if (!course) return res.status(404).json({ success: false, message: 'Course not found' });
+        
+        if (req.user.role === 'teacher' && String(course.teacher) !== String(req.user._id)) {
+            return res.status(403).json({ success: false, message: 'Unauthorised. You are not assigned to this course.' });
+        }
 
         const material = await Material.create({
             title: req.body.title || req.file.originalname,

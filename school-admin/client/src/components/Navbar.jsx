@@ -19,6 +19,7 @@ const pageTitles = {
   '/my-dashboard': { title: 'My Dashboard',        subtitle: 'Your personal academic overview' },
   '/my-grades':    { title: 'My Grades',           subtitle: 'Assessment results and grade history' },
   '/my-attendance':{ title: 'My Attendance',       subtitle: 'Your attendance record' },
+  '/profile':      { title: 'My Profile',           subtitle: 'Account settings and password change' },
 }
 
 /* Role label map */
@@ -183,8 +184,7 @@ export default function Navbar() {
               {/* Menu items */}
               <div style={{ padding: '0.35rem' }}>
                 {[
-                  { icon: '👤', label: 'My Profile',    sub: 'Account details',      action: null },
-                  { icon: '🔔', label: 'Notifications', sub: 'Manage preferences',   action: null },
+                  { icon: '👤', label: 'My Profile',    sub: 'Account settings',     action: () => { navigate('/profile'); setOpen(false) } },
                   { icon: '📊', label: 'Dashboard',     sub: 'Go to overview',       action: () => { navigate(user?.role === 'student' ? '/my-dashboard' : '/dashboard'); setOpen(false) } },
                 ].map(item => (
                   <button

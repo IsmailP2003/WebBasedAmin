@@ -16,6 +16,8 @@ import AnnouncementsPage from './pages/AnnouncementsPage'
 import AtRiskPage from './pages/AtRiskPage'
 import TimetablePage from './pages/TimetablePage'
 import MyDashboardPage from './pages/MyDashboardPage'
+import ProfilePage from './pages/ProfilePage'
+import MyGradesPage from './pages/MyGradesPage'
 
 function ProtectedRoute({ children, roles }) {
   const { user, loading } = useAuth()
@@ -85,7 +87,7 @@ function AppRoutes() {
         } />
         <Route path="my-grades" element={
           <ProtectedRoute roles={['student']}>
-            <GradesPage />
+            <MyGradesPage />
           </ProtectedRoute>
         } />
         <Route path="my-attendance" element={
@@ -93,6 +95,7 @@ function AppRoutes() {
             <AttendancePage />
           </ProtectedRoute>
         } />
+        <Route path="profile" element={<ProfilePage />} />
       </Route>
 
       <Route path="*" element={<Navigate to={user?.role === 'student' ? '/my-dashboard' : '/dashboard'} replace />} />

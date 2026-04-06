@@ -62,13 +62,27 @@ export default function DashboardPage() {
 
   if (loading) return <div className="loading-center"><div className="spinner" /></div>
 
+  // Compute zoomed Y-axis: start just below the lowest value so differences are visible
+  const attRates = attData?.map(d => d.rate) ?? []
+  const attMin = attRates.length
+    ? Math.max(50, Math.floor(Math.min(...attRates) / 5) * 5 - 5)
+    : 0
+
   const attendanceChartData = attData?.length ? {
     labels: attData.map(d => d.courseCode),
     datasets: [{
       label: 'Attendance %',
       data: attData.map(d => d.rate),
-      backgroundColor: attData.map(d => d.rate >= 80 ? 'rgba(34,197,94,0.75)' : 'rgba(245,158,11,0.75)'),
-      borderColor: attData.map(d => d.rate >= 80 ? '#22C55E' : '#F59E0B'),
+      backgroundColor: attData.map(d =>
+        d.rate >= 90 ? 'rgba(34,197,94,0.80)' :
+        d.rate >= 75 ? 'rgba(245,158,11,0.80)' :
+        'rgba(239,68,68,0.80)'
+      ),
+      borderColor: attData.map(d =>
+        d.rate >= 90 ? '#22C55E' :
+        d.rate >= 75 ? '#F59E0B' :
+        '#EF4444'
+      ),
       borderWidth: 2, borderRadius: 8,
     }],
   } : null
@@ -111,13 +125,49 @@ export default function DashboardPage() {
       <div className="charts-grid" style={{ marginBottom: '1.5rem' }}>
         {attendanceChartData ? (
           <div className="chart-card">
-            <div className="chart-title">📊 Attendance Rate by Course</div>
-            <div style={{ height: 210 }}>
+            <div className="chart-title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <span>📊 Attendance Rate by Course</span>
+              <div style={{ display: 'flex', gap: '0.75rem', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <span style={{ width: 8, height: 8, borderRadius: 2, background: '#22C55E', display: 'inline-block' }} />≥90%
+                </span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <span style={{ width: 8, height: 8, borderRadius: 2, background: '#F59E0B', display: 'inline-block' }} />75–89%
+                </span>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                  <span style={{ width: 8, height: 8, borderRadius: 2, background: '#EF4444', display: 'inline-block' }} />&lt;75%
+                </span>
+              </div>
+            </div>
+            <div style={{ height: 220 }}>
               <Bar data={attendanceChartData} options={{
                 responsive: true, maintainAspectRatio: false,
-                plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => ` ${ctx.parsed.y}%` } } },
-                scales: { ...baseScales, y: { ...baseScales.y, max: 100, ticks: { ...baseScales.y.ticks, callback: v => `${v}%` } } },
+                plugins: {
+                  legend: { display: false },
+                  tooltip: {
+                    callbacks: {
+                      title: ctx => attData[ctx[0].dataIndex]?.name || ctx[0].label,
+                      label: ctx => ` ${ctx.parsed.y}%  (${ctx.parsed.y >= 90 ? '✅ Excellent' : ctx.parsed.y >= 75 ? '📘 Satisfactory' : '⚠️ Below threshold'})`,
+                    },
+                  },
+                },
+                scales: {
+                  x: { ...baseScales.x },
+                  y: {
+                    ...baseScales.y,
+                    min: attMin,
+                    max: 100,
+                    ticks: {
+                      ...baseScales.y.ticks,
+                      callback: v => `${v}%`,
+                      stepSize: 5,
+                    },
+                  },
+                },
               }} />
+            </div>
+            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: '0.5rem', textAlign: 'center' }}>
+              Y-axis starts at {attMin}% — zoomed to show differences between courses
             </div>
           </div>
         ) : <div className="chart-card"><div className="chart-title">📊 Attendance Rate</div><div className="empty-state" style={{ padding: '2rem' }}><p>No attendance data yet</p></div></div>}

@@ -1,6 +1,7 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Grade = require('../models/Grade');
+const Course = require('../models/Course');
 const { protect, authorize } = require('../middleware/auth');
 const { createAuditEntry } = require('../utils/auditLogger');
 
@@ -14,6 +15,22 @@ router.get('/', async (req, res, next) => {
     const query = {};
     if (studentId) query.student = studentId;
     if (courseId) query.course = courseId;
+
+    // Teachers can only view grades for their assigned courses
+    if (req.user.role === 'teacher') {
+      const teacherCourses = await Course.find({ teacher: req.user._id }).select('_id');
+      const courseIds = teacherCourses.map(c => c._id);
+      if (courseId) {
+        // If a specific courseId was requested, verify teacher owns it
+        const allowed = courseIds.some(id => String(id) === String(courseId));
+        if (!allowed) {
+          return res.status(403).json({ success: false, message: 'Unauthorised. You are not assigned to this course.' });
+        }
+      } else {
+        // Scope to only their courses
+        query.course = { $in: courseIds };
+      }
+    }
 
     const grades = await Grade.find(query)
       .populate('student', 'firstName lastName studentId')
@@ -73,6 +90,13 @@ router.post('/',
         return res.status(400).json({ success: false, message: 'Score cannot exceed max score.' });
       }
 
+      if (req.user.role === 'teacher') {
+        const targetCourse = await Course.findById(req.body.course);
+        if (!targetCourse || String(targetCourse.teacher) !== String(req.user._id)) {
+          return res.status(403).json({ success: false, message: 'Unauthorised. You are not assigned to this course.' });
+        }
+      }
+
       const grade = await Grade.create({ ...req.body, gradedBy: req.user._id });
 
       await createAuditEntry({
@@ -89,8 +113,14 @@ router.post('/',
 // PUT /api/grades/:id
 router.put('/:id', authorize('admin', 'teacher'), async (req, res, next) => {
   try {
+    const existingGrade = await Grade.findById(req.params.id).populate('course');
+    if (!existingGrade) return res.status(404).json({ success: false, message: 'Grade not found.' });
+
+    if (req.user.role === 'teacher' && String(existingGrade.course.teacher) !== String(req.user._id)) {
+        return res.status(403).json({ success: false, message: 'Unauthorised. You are not assigned to this course.' });
+    }
+
     const grade = await Grade.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
-    if (!grade) return res.status(404).json({ success: false, message: 'Grade not found.' });
 
     await createAuditEntry({
       action: 'UPDATE_GRADE', performedBy: req.user,

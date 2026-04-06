@@ -22,6 +22,14 @@ router.get('/', async (req, res, next) => {
       query.date = { $gte: start, $lte: end };
     }
 
+    // Teachers can only query attendance for courses they are assigned to
+    if (req.user.role === 'teacher' && courseId) {
+      const targetCourse = await Course.findById(courseId);
+      if (!targetCourse || String(targetCourse.teacher) !== String(req.user._id)) {
+        return res.status(403).json({ success: false, message: 'Unauthorised. You are not assigned to this course.' });
+      }
+    }
+
     const records = await Attendance.find(query)
       .populate('student', 'firstName lastName studentId')
       .populate('course', 'courseCode name')
@@ -39,6 +47,13 @@ router.post('/', authorize('admin', 'teacher'), async (req, res, next) => {
     const { courseId, date, records } = req.body;
     if (!courseId || !date || !Array.isArray(records) || records.length === 0) {
       return res.status(400).json({ success: false, message: 'courseId, date and records[] are required.' });
+    }
+
+    if (req.user.role === 'teacher') {
+      const targetCourse = await Course.findById(courseId);
+      if (!targetCourse || String(targetCourse.teacher) !== String(req.user._id)) {
+        return res.status(403).json({ success: false, message: 'Unauthorised. You are not assigned to this course.' });
+      }
     }
 
     const attendanceDate = new Date(date);
