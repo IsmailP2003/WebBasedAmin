@@ -90,7 +90,7 @@ router.patch('/:id/reactivate', authorize('admin'), async (req, res, next) => {
   } catch (err) { next(err); }
 });
 
-// PATCH /api/users/:id/reset-password — admin sets a new password for any user
+// PATCH /api/users/:id/reset-password — admin resets a teacher's password only
 router.patch('/:id/reset-password',
   authorize('admin'),
   [body('newPassword').isLength({ min: 6 }).withMessage('Password must be at least 6 characters')],
@@ -102,6 +102,14 @@ router.patch('/:id/reset-password',
       const user = await User.findById(req.params.id).select('+password');
       if (!user) return res.status(404).json({ success: false, message: 'User not found.' });
 
+      // Only teacher passwords can be reset through this endpoint
+      if (user.role !== 'teacher') {
+        return res.status(403).json({
+          success: false,
+          message: `Password reset is only available for teacher accounts. This account is a ${user.role}.`,
+        });
+      }
+
       user.password = req.body.newPassword;
       await user.save(); // pre-save hook hashes it
 
@@ -110,7 +118,7 @@ router.patch('/:id/reset-password',
         performedBy: req.user,
         targetModel: 'User',
         targetId: user._id,
-        details: `Admin ${req.user.name} reset password for ${user.name} (${user.email})`,
+        details: `Admin ${req.user.name} reset password for teacher ${user.name} (${user.email})`,
         req,
       });
 

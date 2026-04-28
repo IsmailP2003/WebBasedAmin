@@ -25,7 +25,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', fontFamily: "'Inter', sans-serif", background: '#f0f2f5' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', fontFamily: "'DM Sans', sans-serif", background: '#f0f2f5' }}>
 
       {/* Left — institutional panel */}
       <div style={{
@@ -58,8 +58,8 @@ export default function LoginPage() {
           </div>
 
           <h1 style={{
-            fontFamily: "'Lora', Georgia, serif",
-            fontSize: '1.7rem', fontWeight: 600,
+            fontFamily: "'DM Serif Display', Georgia, serif",
+            fontSize: '1.7rem', fontWeight: 400,
             color: '#ffffff', lineHeight: 1.2, marginBottom: '0.35rem',
           }}>
             SchoolAdmin
@@ -115,8 +115,8 @@ export default function LoginPage() {
         <div style={{ width: '100%', maxWidth: 400 }}>
           <div style={{ marginBottom: '2rem' }}>
             <h2 style={{
-              fontFamily: "'Lora', Georgia, serif",
-              fontSize: '1.5rem', fontWeight: 600,
+              fontFamily: "'DM Serif Display', Georgia, serif",
+              fontSize: '1.5rem', fontWeight: 400,
               color: '#111827', marginBottom: '0.35rem',
             }}>
               Sign in

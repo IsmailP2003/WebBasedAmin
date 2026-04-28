@@ -35,13 +35,25 @@ app.use(cors({
 // Rate limiting — protects against brute force (OWASP A07)
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100,
+  max: 500, // Increased from 100 — notification polling (every 30s) + page loads consume many requests
+  standardHeaders: true,
+  legacyHeaders: false,
   message: { success: false, message: 'Too many requests, please try again later.' },
 });
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
   message: { success: false, message: 'Too many login attempts, please try again later.' },
+});
+// Relaxed limiter for notification polling (fires every 30s per user)
+const notificationLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 300,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, message: 'Too many requests, please try again later.' },
 });
 app.use('/api/', limiter);
 app.use('/api/auth', authLimiter);
@@ -69,7 +81,7 @@ app.use('/api/audit', auditRoutes);
 app.use('/api/evaluation', evaluationRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/announcements', announcementRoutes);
-app.use('/api/notifications', notificationRoutes);
+app.use('/api/notifications', notificationLimiter, notificationRoutes); // own limiter — polled every 30s
 app.use('/api/courses/:courseId/materials', materialRoutes);
 
 // Health check

@@ -75,8 +75,8 @@ export default function Navbar() {
       {/* Page title */}
       <div>
         <h1 style={{
-          fontFamily: "'Lora', Georgia, serif",
-          fontSize: '1rem', fontWeight: 600,
+          fontFamily: "'DM Serif Display', Georgia, serif",
+          fontSize: '1rem', fontWeight: 400,
           color: '#111827', lineHeight: 1, letterSpacing: '-0.01em',
         }}>
           {info.title}
@@ -184,8 +184,26 @@ export default function Navbar() {
               {/* Menu items */}
               <div style={{ padding: '0.35rem' }}>
                 {[
-                  { icon: '👤', label: 'My Profile',    sub: 'Account settings',     action: () => { navigate('/profile'); setOpen(false) } },
-                  { icon: '📊', label: 'Dashboard',     sub: 'Go to overview',       action: () => { navigate(user?.role === 'student' ? '/my-dashboard' : '/dashboard'); setOpen(false) } },
+                  {
+                    icon: (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+                        <circle cx="12" cy="7" r="4"/>
+                      </svg>
+                    ),
+                    label: 'My Profile', sub: 'Account settings',
+                    action: () => { navigate('/profile'); setOpen(false) },
+                  },
+                  {
+                    icon: (
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                        <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+                      </svg>
+                    ),
+                    label: 'Dashboard', sub: 'Go to overview',
+                    action: () => { navigate(user?.role === 'student' ? '/my-dashboard' : '/dashboard'); setOpen(false) },
+                  },
                 ].map(item => (
                   <button
                     key={item.label}
@@ -201,7 +219,7 @@ export default function Navbar() {
                     onMouseEnter={e => { if (item.action) e.currentTarget.style.background = '#f3f4f6' }}
                     onMouseLeave={e => e.currentTarget.style.background = 'none'}
                   >
-                    <span style={{ fontSize: '0.85rem', width: 20, textAlign: 'center', flexShrink: 0 }}>{item.icon}</span>
+                    <span style={{ width: 20, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, color: '#6b7280' }}>{item.icon}</span>
                     <div>
                       <div style={{ fontSize: '0.78rem', fontWeight: 600, color: '#374151' }}>{item.label}</div>
                       <div style={{ fontSize: '0.67rem', color: '#9ca3af' }}>{item.sub}</div>

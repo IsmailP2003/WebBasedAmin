@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { useToast } from '../context/ToastContext'
 import { analyticsAPI } from '../api/axios'
+import { CheckCircle2, AlertTriangle, TriangleAlert, SlidersHorizontal } from 'lucide-react'
 
 const RISK_COLORS = {
-    high: { bg: 'rgba(239,68,68,0.1)', border: 'var(--danger)', badge: 'badge-danger', label: '🔴 High Risk' },
-    medium: { bg: 'rgba(245,158,11,0.1)', border: 'var(--warning)', badge: 'badge-warning', label: '🟡 At Risk' },
+    high: { bg: 'rgba(239,68,68,0.1)', border: 'var(--danger)', badge: 'badge-danger', label: 'High Risk' },
+    medium: { bg: 'rgba(245,158,11,0.1)', border: 'var(--warning)', badge: 'badge-warning', label: 'At Risk' },
 }
 
 export default function AtRiskPage() {
@@ -32,7 +33,7 @@ export default function AtRiskPage() {
         <div>
             <div className="page-header">
                 <div>
-                    <h2 className="page-title">⚠️ At-Risk Students</h2>
+                    <h2 className="page-title">At-Risk Students</h2>
                     <p className="page-subtitle">
                         {students.length} students flagged — {highRisk.length} high risk, {mediumRisk.length} at risk
                     </p>
@@ -41,7 +42,8 @@ export default function AtRiskPage() {
 
             {/* Threshold controls */}
             <div className="card" style={{ marginBottom: '1.5rem' }}>
-                <div style={{ fontWeight: 600, marginBottom: '1rem', fontSize: 'var(--text-sm)' }}>🎛️ Detection Thresholds</div>
+                <div style={{ fontWeight: 600, marginBottom: '1rem', fontSize: 'var(--text-sm)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                <SlidersHorizontal size={14} strokeWidth={2} />Detection Thresholds</div>
                 <div className="form-row">
                     <div className="form-group">
                         <label className="form-label">Attendance threshold: <strong style={{ color: 'var(--accent)' }}>{attThreshold}%</strong></label>
@@ -71,7 +73,7 @@ export default function AtRiskPage() {
                 <div className="loading-center"><div className="spinner" /></div>
             ) : students.length === 0 ? (
                 <div className="empty-state">
-                    <div className="empty-state-icon">✅</div>
+                    <div className="empty-state-icon"><CheckCircle2 size={36} strokeWidth={1.25} style={{ color: 'var(--success)' }} /></div>
                     <h3>No at-risk students!</h3>
                     <p>All students are meeting the current thresholds. Try lowering the sliders if you expect results.</p>
                 </div>
@@ -80,13 +82,17 @@ export default function AtRiskPage() {
                     {/* Summary cards */}
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
                         <div className="stat-card red">
-                            <div className="stat-icon red">🔴</div>
+                            <div className="stat-icon red" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <AlertTriangle size={20} strokeWidth={1.75} style={{ color: 'var(--danger)' }} />
+                            </div>
                             <div className="stat-value" style={{ color: 'var(--danger)' }}>{highRisk.length}</div>
                             <div className="stat-label">High Risk</div>
                             <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Low att. AND low grade</div>
                         </div>
                         <div className="stat-card amber">
-                            <div className="stat-icon amber">🟡</div>
+                            <div className="stat-icon amber" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                                <TriangleAlert size={20} strokeWidth={1.75} style={{ color: 'var(--warning)' }} />
+                            </div>
                             <div className="stat-value" style={{ color: 'var(--warning)' }}>{mediumRisk.length}</div>
                             <div className="stat-label">At Risk</div>
                             <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: '0.25rem' }}>Low att. OR low grade</div>
@@ -134,8 +140,8 @@ export default function AtRiskPage() {
                                             </td>
                                             <td>
                                                 <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
-                                                    {lowAtt && <span className="badge badge-danger" style={{ fontSize: '0.65rem' }}>📋 Low Attendance</span>}
-                                                    {lowGrade && <span className="badge badge-warning" style={{ fontSize: '0.65rem' }}>📝 Low Grades</span>}
+                                                    {lowAtt && <span className="badge badge-danger" style={{ fontSize: '0.65rem' }}>Low Attendance</span>}
+                                                    {lowGrade && <span className="badge badge-warning" style={{ fontSize: '0.65rem' }}>Low Grades</span>}
                                                 </div>
                                             </td>
                                         </tr>

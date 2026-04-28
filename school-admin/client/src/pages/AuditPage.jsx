@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react'
 import { auditAPI } from '../api/axios'
+import { Search } from 'lucide-react'
 
 const ACTION_LABELS = {
-  CREATE_STUDENT: '➕ Created student', UPDATE_STUDENT: '✏️ Updated student', DELETE_STUDENT: '🗑️ Deleted student',
-  CREATE_COURSE: '➕ Created course', UPDATE_COURSE: '✏️ Updated course', DELETE_COURSE: '🗑️ Deleted course',
-  ENROL_STUDENT: '📚 Enrolled student', REMOVE_STUDENT_FROM_COURSE: '📤 Removed from course',
-  MARK_ATTENDANCE: '📋 Marked attendance', UPDATE_ATTENDANCE: '📋 Updated attendance',
-  ADD_GRADE: '📝 Added grade', UPDATE_GRADE: '📝 Updated grade', DELETE_GRADE: '🗑️ Deleted grade',
-  USER_LOGIN: '🔐 User login', USER_LOGOUT: '🚪 User logout',
+  CREATE_STUDENT: 'Created student',   UPDATE_STUDENT: 'Updated student',   DELETE_STUDENT: 'Deleted student',
+  CREATE_COURSE:  'Created course',    UPDATE_COURSE:  'Updated course',    DELETE_COURSE:  'Deleted course',
+  ENROL_STUDENT: 'Enrolled student',   REMOVE_STUDENT_FROM_COURSE: 'Removed from course',
+  MARK_ATTENDANCE: 'Marked attendance', UPDATE_ATTENDANCE: 'Updated attendance',
+  ADD_GRADE: 'Added grade',   UPDATE_GRADE: 'Updated grade',   DELETE_GRADE: 'Deleted grade',
+  USER_LOGIN: 'User login',   USER_LOGOUT: 'User logout',
 }
 
 function timeAgo(date) {
@@ -53,7 +54,7 @@ export default function AuditPage() {
       {loading ? <div className="loading-center"><div className="spinner" /></div> : (
         logs.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-state-icon">🔍</div>
+            <div className="empty-state-icon"><Search size={32} strokeWidth={1.25} /></div>
             <h3>No audit entries found</h3>
             <p>System actions will appear here as they happen</p>
           </div>

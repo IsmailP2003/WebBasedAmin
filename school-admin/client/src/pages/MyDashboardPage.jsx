@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { gradesAPI, attendanceAPI, coursesAPI, announcementsAPI } from '../api/axios'
+import { BookOpen, PenLine, BarChart2, Megaphone, User, Calendar } from 'lucide-react'
 
 function StatCard({ icon, label, value, suffix = '', color }) {
     return (
@@ -47,13 +48,13 @@ export default function MyDashboardPage() {
         ? Math.round(grades.reduce((s, g) => s + (g.maxScore > 0 ? (g.score / g.maxScore) * 100 : 0), 0) / grades.length)
         : null
 
-    const PRIORITY_ICONS = { normal: '📢', important: '⚠️', urgent: '🚨' }
+    const PRIORITY_DOT = { normal: 'var(--accent)', important: 'var(--warning)', urgent: 'var(--danger)' }
 
     return (
         <div className="page-enter">
             <div style={{ marginBottom: '1.5rem' }}>
                 <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: 800 }}>
-                    Welcome back, {user?.name?.split(' ')[0]}! 👋
+                    Welcome back, {user?.name?.split(' ')[0]}!
                 </h2>
                 <p style={{ color: 'var(--text-muted)', marginTop: '0.25rem' }}>
                     Here's your personal learning overview for today.
@@ -64,15 +65,15 @@ export default function MyDashboardPage() {
                 <>
                     {/* Stats */}
                     <div className="stats-grid" style={{ marginBottom: '1.5rem' }}>
-                        <StatCard icon="📚" label="Enrolled Courses" value={courses.length} color="blue" />
-                        <StatCard icon="📝" label="Assessments" value={grades.length} color="green" />
-                        <StatCard icon="📊" label="Your Avg Grade" value={avgGrade} suffix="%" color="amber" />
+                        <StatCard icon={<BookOpen size={18} strokeWidth={1.75} />} label="Enrolled Courses" value={courses.length} color="blue" />
+                        <StatCard icon={<PenLine size={18} strokeWidth={1.75} />} label="Assessments" value={grades.length} color="green" />
+                        <StatCard icon={<BarChart2 size={18} strokeWidth={1.75} />} label="Your Avg Grade" value={avgGrade} suffix="%" color="amber" />
                     </div>
 
                     <div className="two-col">
                         {/* Recent grades */}
                         <div className="chart-card">
-                            <div className="chart-title">📝 Recent Grades</div>
+                            <div className="chart-title" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><PenLine size={14} strokeWidth={2} />Recent Grades</div>
                             {grades.length === 0 ? (
                                 <div className="empty-state" style={{ padding: '1.5rem' }}><p>No grades yet</p></div>
                             ) : (
@@ -100,7 +101,7 @@ export default function MyDashboardPage() {
 
                         {/* Latest announcements */}
                         <div className="chart-card">
-                            <div className="chart-title">📢 Latest Announcements</div>
+                            <div className="chart-title" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><Megaphone size={14} strokeWidth={2} />Latest Announcements</div>
                             {announcements.length === 0 ? (
                                 <div className="empty-state" style={{ padding: '1.5rem' }}><p>No announcements</p></div>
                             ) : (
@@ -111,8 +112,9 @@ export default function MyDashboardPage() {
                                             borderLeft: `3px solid ${ann.priority === 'urgent' ? 'var(--danger)' : ann.priority === 'important' ? 'var(--warning)' : 'var(--accent)'}`,
                                             background: 'var(--bg-input)', borderRadius: '0 var(--radius) var(--radius) 0',
                                         }}>
-                                            <div style={{ fontWeight: 600, fontSize: 'var(--text-sm)' }}>
-                                                {PRIORITY_ICONS[ann.priority]} {ann.title}
+                                            <div style={{ fontWeight: 600, fontSize: 'var(--text-sm)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                                                <span style={{ display: 'inline-block', width: 7, height: 7, borderRadius: '50%', background: PRIORITY_DOT[ann.priority] || 'var(--accent)', flexShrink: 0 }} />
+                                                {ann.title}
                                             </div>
                                             <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
                                                 by {ann.author?.name} · {new Date(ann.createdAt).toLocaleDateString('en-GB')}
@@ -127,18 +129,18 @@ export default function MyDashboardPage() {
                     {/* Enrolled courses */}
                     {courses.length > 0 && (
                         <div className="chart-card" style={{ marginTop: '1.5rem' }}>
-                            <div className="chart-title">📚 My Enrolled Courses</div>
+                            <div className="chart-title" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><BookOpen size={14} strokeWidth={2} />My Enrolled Courses</div>
                             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill,minmax(220px,1fr))', gap: '0.75rem', marginTop: '0.75rem' }}>
                                 {courses.map(c => (
                                     <div key={c._id} style={{ padding: '0.85rem', background: 'var(--bg-input)', borderRadius: 'var(--radius)', borderTop: '2px solid var(--accent)' }}>
                                         <div style={{ fontWeight: 800, color: 'var(--accent)', fontSize: 'var(--text-sm)' }}>{c.courseCode}</div>
                                         <div style={{ fontWeight: 600 }}>{c.name}</div>
-                                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                                            👩‍🏫 {c.teacher?.name || '—'} · {c.credits} cr
+                                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                                            <User size={10} strokeWidth={2} />{c.teacher?.name || '—'} · {c.credits} cr
                                         </div>
                                         {c.schedule?.day && (
-                                            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
-                                                📅 {c.schedule.day} {c.schedule.startTime}–{c.schedule.endTime}
+                                            <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                                                <Calendar size={10} strokeWidth={2} />{c.schedule.day} {c.schedule.startTime}–{c.schedule.endTime}
                                             </div>
                                         )}
                                     </div>

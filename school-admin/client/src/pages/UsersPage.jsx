@@ -3,10 +3,14 @@ import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { usersAPI } from '../api/axios'
 import { useSort, SortableHeader } from '../hooks/useSort.jsx'
+import {
+  Users, ShieldCheck, GraduationCap, BookOpen, UserX,
+  Search, X, Pencil, KeyRound, Ban, CheckCircle,
+  AlertTriangle, UserPlus, User
+} from 'lucide-react'
 
 const ROLES = ['admin', 'teacher', 'student']
 const ROLE_COLORS = { admin: 'danger', teacher: 'success', student: 'accent' }
-const ROLE_ICONS  = { admin: '🛡️', teacher: '👩‍🏫', student: '👩‍🎓' }
 
 const emptyForm = { name: '', email: '', password: '', role: 'teacher' }
 
@@ -152,11 +156,11 @@ export default function UsersPage() {
       {/* Stats cards — click to filter by role */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px,1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
         {[
-          { label: 'Total Users',  value: stats.total,    icon: '👥',  color: 'blue',   roleFilter: '' },
-          { label: 'Admins',       value: stats.admins,   icon: '🛡️',  color: 'cyan',   roleFilter: 'admin' },
-          { label: 'Teachers',     value: stats.teachers, icon: '👩‍🏫', color: 'green',  roleFilter: 'teacher' },
-          { label: 'Students',     value: stats.students, icon: '👩‍🎓', color: 'accent', roleFilter: 'student' },
-          { label: 'Deactivated',  value: stats.inactive, icon: '🚫',  color: 'amber',  roleFilter: null },
+          { label: 'Total Users',  value: stats.total,    Icon: Users,          color: 'blue',   roleFilter: '' },
+          { label: 'Admins',       value: stats.admins,   Icon: ShieldCheck,     color: 'cyan',   roleFilter: 'admin' },
+          { label: 'Teachers',     value: stats.teachers, Icon: BookOpen,        color: 'green',  roleFilter: 'teacher' },
+          { label: 'Students',     value: stats.students, Icon: GraduationCap,   color: 'accent', roleFilter: 'student' },
+          { label: 'Deactivated',  value: stats.inactive, Icon: UserX,           color: 'amber',  roleFilter: null },
         ].map(s => {
           const isActive = s.roleFilter !== null ? roleFilter === s.roleFilter : statusFilter === 'inactive'
           return (
@@ -170,7 +174,7 @@ export default function UsersPage() {
               style={{ cursor: 'pointer', outline: isActive ? '2px solid var(--accent)' : 'none', outlineOffset: 2, transition: 'outline 0.15s' }}
               title={s.roleFilter !== null ? `Filter by ${s.label}` : 'Toggle inactive users'}
             >
-              <div className={`stat-icon ${s.color}`}>{s.icon}</div>
+              <div className={`stat-icon ${s.color}`}><s.Icon size={18} strokeWidth={1.75} /></div>
               <div className="stat-value" style={{ fontSize: 'var(--text-2xl)' }}>{s.value}</div>
               <div className="stat-label">{s.label}</div>
             </div>
@@ -182,9 +186,9 @@ export default function UsersPage() {
       <div className="card" style={{ marginBottom: '1.5rem', padding: '1rem 1.5rem' }}>
         <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', alignItems: 'center' }}>
           <div className="search-bar" style={{ flex: 1, minWidth: 220 }}>
-            <span>🔍</span>
+            <Search size={14} strokeWidth={2} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
             <input placeholder="Search by name or email…" value={search} onChange={e => setSearch(e.target.value)} aria-label="Search users" />
-            {search && <button onClick={() => setSearch('')} style={{ background:'none',border:'none',color:'var(--text-muted)',cursor:'pointer' }}>✕</button>}
+            {search && <button onClick={() => setSearch('')} style={{ background:'none',border:'none',color:'var(--text-muted)',cursor:'pointer',display:'flex',alignItems:'center' }}><X size={13} /></button>}
           </div>
           <select className="form-select" style={{ width: 'auto' }} value={roleFilter} onChange={e => setRoleFilter(e.target.value)} aria-label="Filter by role">
             <option value="">All Roles</option>
@@ -206,7 +210,7 @@ export default function UsersPage() {
         <div className="loading-center"><div className="spinner" /></div>
       ) : filtered.length === 0 ? (
         <div className="empty-state">
-          <div className="empty-state-icon">👤</div>
+          <div className="empty-state-icon"><User size={32} strokeWidth={1.25} /></div>
           <h3>No users found</h3>
           <p>{search ? `No results for "${search}"` : 'Create a new user to get started'}</p>
         </div>
@@ -245,7 +249,7 @@ export default function UsersPage() {
                   </td>
                   <td>
                     <span className={`badge badge-${ROLE_COLORS[u.role] || 'neutral'}`} style={{ textTransform: 'capitalize' }}>
-                      {ROLE_ICONS[u.role]} {u.role}
+                      {u.role}
                     </span>
                   </td>
                   <td>
@@ -264,15 +268,15 @@ export default function UsersPage() {
                       {u.isActive ? (
                         <>
                           {u._id !== currentUser?._id && (
-                            <button className="btn btn-icon btn-sm" onClick={() => openEdit(u)} title="Edit user" aria-label={`Edit ${u.name}`}>✏️</button>
+                            <button className="btn btn-icon btn-sm" onClick={() => openEdit(u)} title="Edit user" aria-label={`Edit ${u.name}`}><Pencil size={13} strokeWidth={2} /></button>
                           )}
-                          {u._id !== currentUser?._id && (
+                          {u._id !== currentUser?._id && u.role === 'teacher' && (
                             <button className="btn btn-icon btn-sm" onClick={() => openResetPw(u)}
-                              title="Reset password" aria-label={`Reset password for ${u.name}`} style={{ color: 'var(--accent)' }}>🔑</button>
+                              title="Reset password" aria-label={`Reset password for ${u.name}`} style={{ color: 'var(--accent)' }}><KeyRound size={13} strokeWidth={2} /></button>
                           )}
                           {u._id !== currentUser?._id && (
                             <button className="btn btn-icon btn-sm" onClick={() => { setSelected(u); setModal('deactivate') }}
-                              title="Deactivate" aria-label={`Deactivate ${u.name}`} style={{ color: 'var(--danger)' }}>🚫</button>
+                              title="Deactivate" aria-label={`Deactivate ${u.name}`} style={{ color: 'var(--danger)' }}><Ban size={13} strokeWidth={2} /></button>
                           )}
                           {u._id === currentUser?._id && (
                             <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', padding: '0.4rem 0.6rem' }}>You</span>
@@ -280,7 +284,7 @@ export default function UsersPage() {
                         </>
                       ) : (
                         <button className="btn btn-success btn-sm" onClick={() => handleReactivate(u)} aria-label={`Reactivate ${u.name}`}>
-                          ✓ Reactivate
+                          <CheckCircle size={13} strokeWidth={2} style={{ marginRight: '0.3rem' }} />Reactivate
                         </button>
                       )}
                     </div>
@@ -297,8 +301,8 @@ export default function UsersPage() {
         <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Create User">
           <div className="modal">
             <div className="modal-header">
-              <h3 className="modal-title">＋ Create User Account</h3>
-              <button className="btn btn-icon" onClick={close} aria-label="Close">✕</button>
+              <h3 className="modal-title">Create User Account</h3>
+              <button className="btn btn-icon" onClick={close} aria-label="Close"><X size={16} /></button>
             </div>
             <form onSubmit={handleCreate}>
               <div className="modal-body">
@@ -310,7 +314,7 @@ export default function UsersPage() {
                       className={`btn btn-sm ${form.role === r ? 'btn-primary' : 'btn-secondary'}`}
                       style={{ flex: 1, justifyContent: 'center', textTransform: 'capitalize' }}
                       aria-pressed={form.role === r}>
-                      {ROLE_ICONS[r]} {r}
+                      {r}
                     </button>
                   ))}
                 </div>
@@ -318,9 +322,9 @@ export default function UsersPage() {
                 {/* Role description */}
                 <div style={{ padding: '0.65rem 1rem', background: 'var(--accent-light)', borderRadius: 'var(--radius)', fontSize: 'var(--text-xs)', color: 'var(--accent)', marginBottom: '0.5rem' }}>
                   {{
-                    admin:   '🛡️ Full access: manage users, courses, all data, audit log',
-                    teacher: '👩‍🏫 Can mark attendance, grade students, view their own courses',
-                    student: '👩‍🎓 Read-only access to their own grades and attendance',
+                    admin:   'Full access: manage users, courses, all data and the audit log',
+                    teacher: 'Can mark attendance, grade students, and view their assigned courses',
+                    student: 'Read-only access to their own grades and attendance record',
                   }[form.role]}
                 </div>
 
@@ -359,8 +363,8 @@ export default function UsersPage() {
         <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Edit User">
           <div className="modal" style={{ maxWidth: 460 }}>
             <div className="modal-header">
-              <h3 className="modal-title">✏️ Edit {selected.name}</h3>
-              <button className="btn btn-icon" onClick={close} aria-label="Close">✕</button>
+              <h3 className="modal-title">Edit {selected.name}</h3>
+              <button className="btn btn-icon" onClick={close} aria-label="Close"><X size={16} /></button>
             </div>
             <form onSubmit={handleUpdate}>
               <div className="modal-body">
@@ -383,7 +387,7 @@ export default function UsersPage() {
                         className={`btn btn-sm ${form.role === r ? 'btn-primary' : 'btn-secondary'}`}
                         style={{ flex: 1, justifyContent: 'center', textTransform: 'capitalize' }}
                         aria-pressed={form.role === r}>
-                        {ROLE_ICONS[r]} {r}
+                        {r}
                       </button>
                     ))}
                   </div>
@@ -405,13 +409,14 @@ export default function UsersPage() {
         <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Reset Password">
           <div className="modal" style={{ maxWidth: 440 }}>
             <div className="modal-header">
-              <h3 className="modal-title">🔑 Reset Password — {selected.name}</h3>
-              <button className="btn btn-icon" onClick={close} aria-label="Close">✕</button>
+              <h3 className="modal-title">Reset Password — {selected.name}</h3>
+              <button className="btn btn-icon" onClick={close} aria-label="Close"><X size={16} /></button>
             </div>
             <form onSubmit={handleResetPassword}>
               <div className="modal-body">
-                <div style={{ padding: '0.75rem 1rem', background: 'var(--accent-light)', borderRadius: 'var(--radius)', fontSize: 'var(--text-xs)', color: 'var(--accent)', marginBottom: '1rem' }}>
-                  ⚠️ You are resetting the password for <strong>{selected.name}</strong> ({selected.email}). Share the new password with them securely.
+                <div style={{ padding: '0.75rem 1rem', background: 'var(--accent-light)', borderRadius: 'var(--radius)', fontSize: 'var(--text-xs)', color: 'var(--accent)', marginBottom: '1rem', display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+                  <AlertTriangle size={13} strokeWidth={2} style={{ flexShrink: 0, marginTop: 1 }} />
+                  You are resetting the password for <strong>{selected.name}</strong> ({selected.email}). Share the new password with them securely.
                 </div>
                 <div className="form-group">
                   <label className="form-label">New Password *</label>
@@ -438,7 +443,7 @@ export default function UsersPage() {
               <div className="modal-footer">
                 <button type="button" className="btn btn-secondary" onClick={close}>Cancel</button>
                 <button type="submit" className="btn btn-primary" disabled={submitting || !resetPwForm.newPassword || resetPwForm.newPassword !== resetPwForm.confirm}>
-                  {submitting ? 'Resetting…' : '🔑 Reset Password'}
+                  {submitting ? 'Resetting…' : 'Reset Password'}
                 </button>
               </div>
             </form>
@@ -451,8 +456,8 @@ export default function UsersPage() {
         <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Deactivate User">
           <div className="modal" style={{ maxWidth: 420 }}>
             <div className="modal-header">
-              <h3 className="modal-title">🚫 Deactivate Account</h3>
-              <button className="btn btn-icon" onClick={close} aria-label="Close">✕</button>
+              <h3 className="modal-title">Deactivate Account</h3>
+              <button className="btn btn-icon" onClick={close} aria-label="Close"><X size={16} /></button>
             </div>
             <div className="modal-body">
               <div style={{
@@ -460,7 +465,7 @@ export default function UsersPage() {
                 padding: '1rem', background: 'var(--danger-light)', borderRadius: 'var(--radius)',
                 border: '1px solid var(--danger)', marginBottom: '0.5rem',
               }}>
-                <span style={{ fontSize: '2rem' }}>⚠️</span>
+                <AlertTriangle size={28} strokeWidth={1.5} style={{ color: 'var(--danger)', flexShrink: 0 }} />
                 <div>
                   <div style={{ fontWeight: 700, color: 'var(--danger)' }}>Account will be disabled</div>
                   <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
@@ -486,7 +491,7 @@ export default function UsersPage() {
             <div className="modal-footer">
               <button className="btn btn-secondary" onClick={close}>Cancel</button>
               <button className="btn btn-danger" onClick={handleDeactivate} disabled={submitting}>
-                {submitting ? 'Deactivating…' : '🚫 Deactivate Account'}
+                {submitting ? 'Deactivating…' : 'Deactivate Account'}
               </button>
             </div>
           </div>

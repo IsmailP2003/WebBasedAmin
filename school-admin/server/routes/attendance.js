@@ -22,7 +22,8 @@ router.get('/', async (req, res, next) => {
       query.date = { $gte: start, $lte: end };
     }
 
-    // Teachers can only query attendance for courses they are assigned to
+    // Teachers are only allowed to view attendance for courses they teach.
+    // Without this, a teacher could query another teacher's class by passing any courseId.
     if (req.user.role === 'teacher' && courseId) {
       const targetCourse = await Course.findById(courseId);
       if (!targetCourse || String(targetCourse.teacher) !== String(req.user._id)) {
@@ -65,6 +66,10 @@ router.post('/', authorize('admin', 'teacher'), async (req, res, next) => {
       },
     }));
 
+    // NOTE: attendance is recorded once per student per day.
+    // A full production system would track individual sessions/lectures.
+    // bulkWrite with upsert handles re-submissions gracefully — re-saving the
+    // same day just overwrites the existing record rather than duplicating it.
     await Attendance.bulkWrite(ops);
 
     await createAuditEntry({

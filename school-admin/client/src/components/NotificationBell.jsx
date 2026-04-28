@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { notificationsAPI } from '../api/axios'
+import { Bell, CheckCircle2, X } from 'lucide-react'
 
 export default function NotificationBell() {
     const [notifications, setNotifications] = useState([])
@@ -82,7 +83,7 @@ export default function NotificationBell() {
                     fontSize: '1.1rem', transition: 'all 0.2s',
                     backgroundColor: open ? 'var(--accent-light)' : 'transparent',
                 }}>
-                🔔
+                <Bell size={17} strokeWidth={1.75} />
                 {unread > 0 && (
                     <span style={{
                         position: 'absolute', top: 2, right: 2,
@@ -105,8 +106,8 @@ export default function NotificationBell() {
                 }}>
                     {/* Header */}
                     <div style={{ padding: '1rem 1.25rem', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', position: 'sticky', top: 0, background: 'var(--bg-card)', zIndex: 1 }}>
-                        <div style={{ fontWeight: 700, fontSize: 'var(--text-sm)' }}>
-                            🔔 Notifications {unread > 0 && <span className="badge badge-danger" style={{ marginLeft: '0.5rem' }}>{unread}</span>}
+                        <div style={{ fontWeight: 700, fontSize: 'var(--text-sm)', display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                            <Bell size={14} strokeWidth={2} /> Notifications {unread > 0 && <span className="badge badge-danger" style={{ marginLeft: '0.5rem' }}>{unread}</span>}
                         </div>
                         {unread > 0 && (
                             <button className="btn btn-sm btn-secondary" onClick={handleReadAll} style={{ fontSize: 'var(--text-xs)' }}>
@@ -120,7 +121,7 @@ export default function NotificationBell() {
                         <div style={{ padding: '2rem', textAlign: 'center' }}><div className="spinner" /></div>
                     ) : notifications.length === 0 ? (
                         <div style={{ padding: '3rem 1.5rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-                            <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>✅</div>
+                            <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem', display: 'flex', justifyContent: 'center' }}><CheckCircle2 size={36} strokeWidth={1.5} style={{ color: 'var(--success)' }} /></div>
                             <p style={{ fontSize: 'var(--text-sm)' }}>All caught up!</p>
                         </div>
                     ) : (
@@ -141,7 +142,9 @@ export default function NotificationBell() {
                                     }} />
                                 )}
                                 <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-start' }}>
-                                    <span style={{ fontSize: '1.2rem', flexShrink: 0 }}>{n.icon || '🔔'}</span>
+                                    <span style={{ fontSize: '1.1rem', flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+                                        <Bell size={16} strokeWidth={1.75} style={{ color: TYPE_COLORS[n.type] || 'var(--text-muted)' }} />
+                                    </span>
                                     <div style={{ flex: 1, minWidth: 0 }}>
                                         <div style={{ fontWeight: n.read ? 500 : 700, fontSize: 'var(--text-xs)', color: 'var(--text-primary)', marginBottom: '0.2rem' }}>{n.title}</div>
                                         <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', lineHeight: 1.5, overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>{n.message}</div>
@@ -152,7 +155,7 @@ export default function NotificationBell() {
                                             <span>{timeAgo(n.createdAt)}</span>
                                         </div>
                                     </div>
-                                    <button onClick={e => handleDelete(e, n._id)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '0.75rem', padding: '0.15rem 0.3rem', flexShrink: 0 }} aria-label="Dismiss notification">✕</button>
+                                    <button onClick={e => handleDelete(e, n._id)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', padding: '0.15rem 0.3rem', flexShrink: 0, display: 'flex', alignItems: 'center' }} aria-label="Dismiss notification"><X size={13} /></button>
                                 </div>
                             </div>
                         ))

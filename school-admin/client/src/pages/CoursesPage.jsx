@@ -2,15 +2,20 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { coursesAPI, studentsAPI, gradesAPI, usersAPI, materialsAPI } from '../api/axios'
+import {
+  BookOpen, BookMarked, FileText, Link2, Folder, FilePieChart,
+  FileSpreadsheet, ImageIcon, Archive, Paperclip, Upload, Download,
+  Trash2, GraduationCap, User, Calendar, MapPin, X, PenLine, BookCopy
+} from 'lucide-react'
 
 const emptyForm = { courseCode: '', name: '', description: '', teacher: '', credits: 3 }
 
 const FILE_TYPES = [
-  { value: 'lecture', label: '📖 Lecture Slides' },
-  { value: 'assignment', label: '📋 Assignment' },
-  { value: 'reading', label: '📄 Reading' },
-  { value: 'resource', label: '🔗 Resource' },
-  { value: 'other', label: '📁 Other' },
+  { value: 'lecture',    label: 'Lecture Slides' },
+  { value: 'assignment', label: 'Assignment' },
+  { value: 'reading',    label: 'Reading' },
+  { value: 'resource',   label: 'Resource' },
+  { value: 'other',      label: 'Other' },
 ]
 
 function fileSize(bytes) {
@@ -20,14 +25,14 @@ function fileSize(bytes) {
 }
 
 function fileIcon(mime = '') {
-  if (mime.includes('pdf')) return '📕'
-  if (mime.includes('word')) return '📘'
-  if (mime.includes('powerpoint') || mime.includes('presentation')) return '📊'
-  if (mime.includes('excel') || mime.includes('spreadsheet')) return '📗'
-  if (mime.includes('image')) return '🖼️'
-  if (mime.includes('zip')) return '🗜️'
-  if (mime.includes('text')) return '📄'
-  return '📎'
+  if (mime.includes('pdf'))          return <FileText size={20} strokeWidth={1.5} style={{ color: '#ef4444' }} />
+  if (mime.includes('word'))         return <BookMarked size={20} strokeWidth={1.5} style={{ color: '#3b82f6' }} />
+  if (mime.includes('powerpoint') || mime.includes('presentation')) return <FilePieChart size={20} strokeWidth={1.5} style={{ color: '#f97316' }} />
+  if (mime.includes('excel') || mime.includes('spreadsheet'))       return <FileSpreadsheet size={20} strokeWidth={1.5} style={{ color: '#22c55e' }} />
+  if (mime.includes('image'))        return <ImageIcon size={20} strokeWidth={1.5} style={{ color: '#8b5cf6' }} />
+  if (mime.includes('zip'))          return <Archive size={20} strokeWidth={1.5} style={{ color: '#f59e0b' }} />
+  if (mime.includes('text'))         return <FileText size={20} strokeWidth={1.5} style={{ color: '#64748b' }} />
+  return <Paperclip size={20} strokeWidth={1.5} style={{ color: '#64748b' }} />
 }
 
 function timeAgo(date) {
@@ -131,12 +136,12 @@ function MaterialsPanel({ course }) {
                 <span style={{ fontWeight: 600, fontSize: 'var(--text-sm)', color: 'var(--text-primary)' }}>{pendingFile.name}</span>
                 <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>{fileSize(pendingFile.size)}</span>
                 <button type="button" className="btn btn-sm btn-secondary" onClick={e => { e.stopPropagation(); setPendingFile(null); if (fileRef.current) fileRef.current.value = '' }}>
-                  ✕ Remove
+                  <X size={11} strokeWidth={2} style={{ marginRight: '0.25rem' }} />Remove
                 </button>
               </div>
             ) : (
               <>
-                <div style={{ fontSize: '2.5rem', marginBottom: '0.5rem' }}>📤</div>
+                <div style={{ marginBottom: '0.5rem', display: 'flex', justifyContent: 'center' }}><Upload size={28} strokeWidth={1.5} style={{ color: 'var(--text-muted)' }} /></div>
                 <p style={{ fontWeight: 600, fontSize: 'var(--text-sm)', marginBottom: '0.25rem' }}>Drag & drop or click to upload</p>
                 <p style={{ fontSize: 'var(--text-xs)' }}>PDF, Word, PowerPoint, Excel, images, ZIP · Max 20 MB</p>
               </>
@@ -160,7 +165,7 @@ function MaterialsPanel({ course }) {
                 </select>
               </div>
               <button type="submit" className="btn btn-primary" disabled={uploading} style={{ gridColumn: '1/-1' }}>
-                {uploading ? '⏳ Uploading…' : '📤 Upload File'}
+                {uploading ? 'Uploading…' : <><Upload size={14} strokeWidth={2} style={{ marginRight: '0.4rem' }} />Upload File</>}
               </button>
             </div>
           )}
@@ -172,7 +177,7 @@ function MaterialsPanel({ course }) {
         <div className="loading-center" style={{ padding: '1.5rem' }}><div className="spinner" /></div>
       ) : materials.length === 0 ? (
         <div className="empty-state" style={{ padding: '2rem' }}>
-          <div className="empty-state-icon">📂</div>
+          <div className="empty-state-icon"><Folder size={28} strokeWidth={1.25} /></div>
           <h3 style={{ fontSize: 'var(--text-base)' }}>No materials yet</h3>
           {canUpload && <p>Upload the first file for this course above.</p>}
         </div>
@@ -184,7 +189,7 @@ function MaterialsPanel({ course }) {
               padding: '0.75rem 1rem', borderRadius: 'var(--radius)',
               background: 'var(--bg-input)', border: '1px solid var(--border)',
             }}>
-              <span style={{ fontSize: '1.5rem', flexShrink: 0 }}>{fileIcon(mat.mimetype)}</span>
+              <span style={{ fontSize: '1.5rem', flexShrink: 0, display: 'flex', alignItems: 'center' }}>{fileIcon(mat.mimetype)}</span>
               <div style={{ flex: 1, minWidth: 0 }}>
                 <div style={{ fontWeight: 600, fontSize: 'var(--text-sm)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {mat.title}
@@ -202,10 +207,10 @@ function MaterialsPanel({ course }) {
                 </div>
               </div>
               <div style={{ display: 'flex', gap: '0.4rem', flexShrink: 0 }}>
-                <button className="btn btn-icon btn-sm" onClick={() => handleDownload(mat)} title="Download" aria-label={`Download ${mat.title}`}>⬇️</button>
+                <button className="btn btn-icon btn-sm" onClick={() => handleDownload(mat)} title="Download" aria-label={`Download ${mat.title}`}><Download size={13} strokeWidth={2} /></button>
                 {(user?.role === 'admin' || String(mat.uploadedBy?._id) === String(user?._id)) && (
                   <button className="btn btn-icon btn-sm" onClick={() => handleDelete(mat)}
-                    title="Delete" aria-label={`Delete ${mat.title}`} style={{ color: 'var(--danger)' }}>🗑️</button>
+                    title="Delete" aria-label={`Delete ${mat.title}`} style={{ color: 'var(--danger)' }}><Trash2 size={13} strokeWidth={2} /></button>
                 )}
               </div>
             </div>
@@ -303,9 +308,9 @@ export default function CoursesPage() {
   const f = (key, val) => setForm(prev => ({ ...prev, [key]: val }))
 
   const TABS = [
-    { id: 'students', label: '👩‍🎓 Students' },
-    { id: 'grades', label: '📝 Grades' },
-    { id: 'materials', label: '📁 Materials' },
+    { id: 'students',  label: 'Students',  icon: <GraduationCap size={13} strokeWidth={2} /> },
+    { id: 'grades',    label: 'Grades',    icon: <PenLine size={13} strokeWidth={2} /> },
+    { id: 'materials', label: 'Materials', icon: <BookCopy size={13} strokeWidth={2} /> },
   ]
 
   return (
@@ -321,7 +326,7 @@ export default function CoursesPage() {
       {loading ? <div className="loading-center"><div className="spinner" /></div> : (
         courses.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-state-icon">📚</div>
+            <div className="empty-state-icon"><BookOpen size={32} strokeWidth={1.25} /></div>
             <h3>No courses yet</h3>
             {isAdmin && <button className="btn btn-primary" onClick={() => setModal('add')}>＋ Create Course</button>}
           </div>
@@ -340,12 +345,17 @@ export default function CoursesPage() {
                   {c.description || 'No description'}
                 </p>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', paddingTop: '0.75rem', borderTop: '1px solid var(--border)' }}>
-                  <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>👩‍🏫 {c.teacher?.name || '—'}</div>
-                  <span className="badge badge-neutral">👩‍🎓 {c.studentCount} students</span>
+                  <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <User size={11} strokeWidth={2} />{c.teacher?.name || '—'}
+                  </div>
+                  <span className="badge badge-neutral" style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                    <GraduationCap size={11} strokeWidth={2} />{c.studentCount} students
+                  </span>
                 </div>
                 {c.schedule?.day && (
-                  <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: '0.5rem' }}>
-                    📅 {c.schedule.day} {c.schedule.startTime}–{c.schedule.endTime} · {c.schedule.room}
+                  <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                    <Calendar size={10} strokeWidth={2} />{c.schedule.day} {c.schedule.startTime}–{c.schedule.endTime}
+                    {c.schedule.room && <><MapPin size={10} strokeWidth={2} />{c.schedule.room}</>}
                   </div>
                 )}
               </div>
@@ -361,15 +371,15 @@ export default function CoursesPage() {
             <div className="modal-header">
               <div>
                 <h3 className="modal-title">{selected.courseCode}: {selected.name}</h3>
-                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
+                <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
                   Teacher: {selected.teacher?.name} · {selected.credits} credits
-                  {selected.schedule?.day && ` · 📅 ${selected.schedule.day} ${selected.schedule.startTime}–${selected.schedule.endTime}`}
-                  {selected.schedule?.room && ` · 📍 ${selected.schedule.room}`}
+                  {selected.schedule?.day && <><Calendar size={10} strokeWidth={2} />{selected.schedule.day} {selected.schedule.startTime}–{selected.schedule.endTime}</>}
+                  {selected.schedule?.room && <><MapPin size={10} strokeWidth={2} />{selected.schedule.room}</>}
                 </p>
               </div>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
-                {isAdmin && <button className="btn btn-danger btn-sm" onClick={() => setModal('delete')} aria-label="Delete">🗑️</button>}
-                <button className="btn btn-icon" onClick={() => setModal(null)} aria-label="Close">✕</button>
+                {isAdmin && <button className="btn btn-danger btn-sm" onClick={() => setModal('delete')} aria-label="Delete"><Trash2 size={13} strokeWidth={2} /></button>}
+                <button className="btn btn-icon" onClick={() => setModal(null)} aria-label="Close"><X size={16} /></button>
               </div>
             </div>
 
@@ -377,8 +387,9 @@ export default function CoursesPage() {
             <div className="tab-bar" style={{ padding: '0 1.5rem', margin: 0 }}>
               {TABS.map(t => (
                 <button key={t.id} className={`tab-btn ${activeTab === t.id ? 'active' : ''}`}
-                  onClick={() => setActiveTab(t.id)} aria-pressed={activeTab === t.id}>
-                  {t.label}
+                  onClick={() => setActiveTab(t.id)} aria-pressed={activeTab === t.id}
+                  style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                  {t.icon}{t.label}
                 </button>
               ))}
             </div>
@@ -396,7 +407,7 @@ export default function CoursesPage() {
                       {selected.students?.map(s => (
                         <span key={s._id} className="chip">
                           {s.firstName} {s.lastName}
-                          {isAdmin && <button onClick={() => handleRemove(s._id)} aria-label={`Remove ${s.firstName}`}>✕</button>}
+                          {isAdmin && <button onClick={() => handleRemove(s._id)} aria-label={`Remove ${s.firstName}`} style={{ display: 'inline-flex', alignItems: 'center' }}><X size={11} strokeWidth={2} /></button>}
                         </span>
                       ))}
                     </div>
@@ -440,7 +451,7 @@ export default function CoursesPage() {
                   </div>
                 ) : (
                   <div className="empty-state" style={{ padding: '2rem' }}>
-                    <div className="empty-state-icon">📝</div>
+                    <div className="empty-state-icon"><PenLine size={24} strokeWidth={1.25} /></div>
                     <p>No grades recorded for this course yet.</p>
                   </div>
                 )
@@ -458,8 +469,8 @@ export default function CoursesPage() {
         <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Create Course">
           <div className="modal">
             <div className="modal-header">
-              <h3 className="modal-title">＋ New Course</h3>
-              <button className="btn btn-icon" onClick={() => setModal(null)} aria-label="Close">✕</button>
+              <h3 className="modal-title">New Course</h3>
+              <button className="btn btn-icon" onClick={() => setModal(null)} aria-label="Close"><X size={16} /></button>
             </div>
             <form onSubmit={handleCreate}>
               <div className="modal-body">
@@ -503,8 +514,8 @@ export default function CoursesPage() {
         <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Delete Course">
           <div className="modal" style={{ maxWidth: 400 }}>
             <div className="modal-header">
-              <h3 className="modal-title">🗑️ Delete Course</h3>
-              <button className="btn btn-icon" onClick={() => setModal('detail')} aria-label="Back">←</button>
+              <h3 className="modal-title">Delete Course</h3>
+              <button className="btn btn-icon" onClick={() => setModal('detail')} aria-label="Back"><X size={16} /></button>
             </div>
             <div className="modal-body">
               <p style={{ color: 'var(--text-secondary)' }}>

@@ -71,14 +71,17 @@ const seed = async () => {
   const students = await Student.insertMany(studentData);
   console.log(`✅ Created ${students.length} students`);
 
-  // Create User accounts for 4 students (so they can log in)
+  // Create User accounts for ALL students (so they can all log in)
   const studentPassword = await bcrypt.hash('Student1234!', 12);
-  const studentUsers = await User.insertMany([
-    { name: 'Aisha Rahman',    email: 'a.rahman@student.school.com',    password: studentPassword, role: 'student' },
-    { name: 'James Murray',    email: 'j.murray@student.school.com',    password: studentPassword, role: 'student' },
-    { name: 'Priya Patel',     email: 'p.patel@student.school.com',     password: studentPassword, role: 'student' },
-    { name: 'Oliver Thompson', email: 'o.thompson@student.school.com',  password: studentPassword, role: 'student' },
-  ]);
+  const studentUsers = await User.insertMany(
+    studentData.map(s => ({
+      name: `${s.firstName} ${s.lastName}`,
+      email: s.email,
+      password: studentPassword,
+      role: 'student',
+      isActive: s.status === 'active',
+    }))
+  );
   console.log(`✅ Created ${studentUsers.length} student login accounts`);
 
   // ── Courses (10 courses, all 5 days covered, different rooms) ──────────
@@ -347,10 +350,10 @@ const seed = async () => {
   console.log('   Mrs. Fatima Malik  → fatima.malik@schooladmin.com   → BUS101, BUS202');
   console.log('─────────────────────────────────────────────────────');
   console.log('📧 Students (all use password: Student1234!)');
-  console.log('   Aisha Rahman    → a.rahman@student.school.com');
-  console.log('   James Murray    → j.murray@student.school.com');
-  console.log('   Priya Patel     → p.patel@student.school.com');
-  console.log('   Oliver Thompson → o.thompson@student.school.com');
+  studentData.forEach(s => {
+    const flag = s.status !== 'active' ? ` [${s.status}]` : '';
+    console.log(`   ${(s.firstName + ' ' + s.lastName).padEnd(18)} → ${s.email}${flag}`);
+  });
   console.log('─────────────────────────────────────────────────────\n');
 
   mongoose.disconnect();

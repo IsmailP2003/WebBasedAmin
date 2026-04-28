@@ -3,11 +3,12 @@ import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { announcementsAPI } from '../api/axios'
 import { useSort, SortableHeader } from '../hooks/useSort.jsx'
+import { Megaphone, AlertTriangle, Siren, Pin, PinOff, Trash2, Search, X, Inbox } from 'lucide-react'
 
 const PRIORITY_MAP = {
-    normal: { label: 'Normal', color: 'var(--text-secondary)', icon: '📢' },
-    important: { label: 'Important', color: 'var(--warning)', icon: '⚠️' },
-    urgent: { label: 'Urgent', color: 'var(--danger)', icon: '🚨' },
+    normal: { label: 'Normal', color: 'var(--text-secondary)', Icon: Megaphone },
+    important: { label: 'Important', color: 'var(--warning)', Icon: AlertTriangle },
+    urgent: { label: 'Urgent', color: 'var(--danger)', Icon: Siren },
 }
 const TARGET_LABELS = { all: 'Everyone', role: 'By Role', course: 'Course' }
 
@@ -81,7 +82,7 @@ export default function AnnouncementsPage() {
                 </div>
                 {canPost && (
                     <button className="btn btn-primary" onClick={() => setModal(true)} aria-label="Post announcement">
-                        📢 Post Announcement
+                        <Megaphone size={14} strokeWidth={2} style={{ marginRight: '0.4rem' }} />Post Announcement
                     </button>
                 )}
             </div>
@@ -89,18 +90,18 @@ export default function AnnouncementsPage() {
             {loading ? <div className="loading-center"><div className="spinner" /></div> : (
             announcements.length === 0 ? (
                 <div className="empty-state">
-                    <div className="empty-state-icon">📭</div>
+                    <div className="empty-state-icon"><Inbox size={32} strokeWidth={1.25} /></div>
                     <h3>No announcements yet</h3>
-                    {canPost && <button className="btn btn-primary" onClick={() => setModal(true)}>📢 Post first announcement</button>}
+                    {canPost && <button className="btn btn-primary" onClick={() => setModal(true)}><Megaphone size={14} strokeWidth={2} style={{ marginRight: '0.4rem' }} />Post first announcement</button>}
                 </div>
             ) : (
                 <>
                   {/* Search bar */}
                   <div className="card" style={{ marginBottom: '1rem', padding: '0.75rem 1rem' }}>
                     <div className="search-bar">
-                      <span>🔍</span>
+                      <Search size={14} strokeWidth={2} style={{ color: 'var(--text-muted)', flexShrink: 0 }} />
                       <input placeholder="Search title or author…" value={search} onChange={e => setSearch(e.target.value)} aria-label="Search announcements" />
-                      {search && <button onClick={() => setSearch('')} style={{ background:'none',border:'none',color:'var(--text-muted)',cursor:'pointer' }}>✕</button>}
+                      {search && <button onClick={() => setSearch('')} style={{ background:'none',border:'none',color:'var(--text-muted)',cursor:'pointer',display:'flex',alignItems:'center' }}><X size={13} /></button>}
                     </div>
                   </div>
 
@@ -122,9 +123,9 @@ export default function AnnouncementsPage() {
                             <tr key={ann._id} style={{ borderLeft: `3px solid ${ann.priority === 'urgent' ? 'var(--danger)' : ann.priority === 'important' ? 'var(--warning)' : 'var(--accent)'}` }}>
                               <td>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flexWrap: 'wrap' }}>
-                                  {ann.pinned && <span className="badge badge-accent" style={{ fontSize: '0.65rem' }}>📌</span>}
-                                  <span className="badge badge-neutral" style={{ color: p.color, textTransform: 'capitalize', fontSize: '0.7rem' }}>
-                                    {p.icon} {p.label}
+                                  {ann.pinned && <span className="badge badge-accent" style={{ fontSize: '0.65rem', display: 'flex', alignItems: 'center', gap: '0.2rem' }}><Pin size={9} strokeWidth={2.5} />Pinned</span>}
+                                  <span className="badge badge-neutral" style={{ color: p.color, textTransform: 'capitalize', fontSize: '0.7rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                                    <p.Icon size={11} strokeWidth={2} />{p.label}
                                   </span>
                                 </div>
                               </td>
@@ -142,12 +143,12 @@ export default function AnnouncementsPage() {
                                   {user?.role === 'admin' && (
                                     <button className="btn btn-icon btn-sm" onClick={() => handlePin(ann._id)}
                                       title={ann.pinned ? 'Unpin' : 'Pin'} aria-label={ann.pinned ? 'Unpin' : 'Pin announcement'}>
-                                      {ann.pinned ? '📌' : '📍'}
+                                      {ann.pinned ? <PinOff size={13} strokeWidth={2} /> : <Pin size={13} strokeWidth={2} />}
                                     </button>
                                   )}
                                   {(user?.role === 'admin' || String(ann.author?._id) === String(user?._id)) && (
                                     <button className="btn btn-icon btn-sm" onClick={() => handleDelete(ann._id)}
-                                      title="Delete" aria-label="Delete announcement" style={{ color: 'var(--danger)' }}>🗑️</button>
+                                      title="Delete" aria-label="Delete announcement" style={{ color: 'var(--danger)' }}><Trash2 size={13} strokeWidth={2} /></button>
                                   )}
                                 </div>
                               </td>
@@ -166,8 +167,8 @@ export default function AnnouncementsPage() {
                 <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Post Announcement">
                     <div className="modal">
                         <div className="modal-header">
-                            <h3 className="modal-title">📢 Post Announcement</h3>
-                            <button className="btn btn-icon" onClick={() => setModal(false)} aria-label="Close">✕</button>
+                            <h3 className="modal-title">Post Announcement</h3>
+                            <button className="btn btn-icon" onClick={() => setModal(false)} aria-label="Close"><X size={16} /></button>
                         </div>
                         <form onSubmit={handleSubmit}>
                             <div className="modal-body">
@@ -175,14 +176,17 @@ export default function AnnouncementsPage() {
                                 <div className="form-group">
                                     <label className="form-label">Priority</label>
                                     <div style={{ display: 'flex', gap: '0.65rem' }}>
-                                        {['normal', 'important', 'urgent'].map(p => (
-                                            <button key={p} type="button"
-                                                className={`btn btn-sm ${form.priority === p ? 'btn-primary' : 'btn-secondary'}`}
-                                                onClick={() => f('priority', p)}
-                                                style={{ flex: 1, textTransform: 'capitalize' }} aria-pressed={form.priority === p}>
-                                                {PRIORITY_MAP[p].icon} {p}
-                                            </button>
-                                        ))}
+                                        {['normal', 'important', 'urgent'].map(p => {
+                                            const PIcon = PRIORITY_MAP[p].Icon
+                                            return (
+                                                <button key={p} type="button"
+                                                    className={`btn btn-sm ${form.priority === p ? 'btn-primary' : 'btn-secondary'}`}
+                                                    onClick={() => f('priority', p)}
+                                                    style={{ flex: 1, textTransform: 'capitalize', display: 'flex', alignItems: 'center', gap: '0.4rem' }} aria-pressed={form.priority === p}>
+                                                    <PIcon size={12} strokeWidth={2} />{p}
+                                                </button>
+                                            )
+                                        })}
                                     </div>
                                 </div>
 
@@ -195,7 +199,7 @@ export default function AnnouncementsPage() {
                                                 className={`btn btn-sm ${form.target.type === t ? 'btn-primary' : 'btn-secondary'}`}
                                                 onClick={() => f('target', { ...form.target, type: t })}
                                                 style={{ flex: 1 }} aria-pressed={form.target.type === t}>
-                                                {t === 'all' ? '🌍 Everyone' : '🎯 Specific Role'}
+                                                {t === 'all' ? 'Everyone' : 'Specific Role'}
                                             </button>
                                         ))}
                                     </div>
@@ -225,14 +229,14 @@ export default function AnnouncementsPage() {
                                     <label style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', cursor: 'pointer' }}>
                                         <input type="checkbox" checked={form.pinned} onChange={e => f('pinned', e.target.checked)}
                                             style={{ width: 18, height: 18, accentColor: 'var(--accent)' }} aria-label="Pin announcement" />
-                                        <span className="form-label" style={{ margin: 0 }}>📌 Pin this announcement</span>
+                                        <span className="form-label" style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.4rem' }}><Pin size={12} strokeWidth={2} />Pin this announcement</span>
                                     </label>
                                 </div>
                             </div>
                             <div className="modal-footer">
                                 <button type="button" className="btn btn-secondary" onClick={() => setModal(false)}>Cancel</button>
                                 <button type="submit" className="btn btn-primary" disabled={submitting}>
-                                    {submitting ? 'Posting…' : '📢 Post Announcement'}
+                                    {submitting ? 'Posting…' : <><Megaphone size={14} strokeWidth={2} style={{ marginRight: '0.4rem' }} />Post Announcement</>}
                                 </button>
                             </div>
                         </form>

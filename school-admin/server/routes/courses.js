@@ -11,7 +11,8 @@ router.use(protect);
 // GET /api/courses
 router.get('/', async (req, res, next) => {
   try {
-    // Teachers only see courses they are assigned to
+    // Teachers should only see their own courses, not the full list.
+    // Filtering happens server-side so a teacher can't bypass it by changing the URL.
     const filter = req.user?.role === 'teacher' ? { teacher: req.user._id } : {};
     const courses = await Course.find(filter)
       .populate('teacher', 'name email')
@@ -85,7 +86,7 @@ router.delete('/:id', authorize('admin'), async (req, res, next) => {
     const course = await Course.findByIdAndDelete(req.params.id);
     if (!course) return res.status(404).json({ success: false, message: 'Course not found.' });
 
-    // Remove course ref from all enrolled students
+    // Also remove the course reference from every enrolled student's record
     await Student.updateMany({ enrolledCourses: req.params.id }, { $pull: { enrolledCourses: req.params.id } });
 
     await createAuditEntry({
@@ -110,6 +111,7 @@ router.post('/:id/enrol', authorize('admin'), async (req, res, next) => {
     if (!course) return res.status(404).json({ success: false, message: 'Course not found.' });
     if (!student) return res.status(404).json({ success: false, message: 'Student not found.' });
 
+    // Stop the same student being enrolled twice
     if (course.students.includes(studentId)) {
       return res.status(400).json({ success: false, message: 'Student is already enrolled in this course.' });
     }

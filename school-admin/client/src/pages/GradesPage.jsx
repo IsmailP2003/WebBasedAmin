@@ -3,6 +3,7 @@ import { useToast } from '../context/ToastContext'
 import { useAuth } from '../context/AuthContext'
 import { gradesAPI, studentsAPI, coursesAPI } from '../api/axios'
 import { useSort, SortableHeader } from '../hooks/useSort.jsx'
+import { PenLine, Trash2, X } from 'lucide-react'
 
 const TYPES = ['assignment','exam','quiz','project','presentation','other']
 
@@ -115,7 +116,7 @@ export default function GradesPage() {
       {loading ? <div className="loading-center"><div className="spinner" /></div> : (
         grades.length === 0 ? (
           <div className="empty-state">
-            <div className="empty-state-icon">📝</div>
+            <div className="empty-state-icon"><PenLine size={32} strokeWidth={1.25} /></div>
             <h3>No grades found</h3>
             <button className="btn btn-primary" onClick={() => setModal('add')}>＋ Add First Grade</button>
           </div>
@@ -157,7 +158,7 @@ export default function GradesPage() {
                       </td>
                       <td>
                         {(isAdmin) && (
-                          <button className="btn btn-icon btn-sm" onClick={() => handleDelete(g._id)} aria-label="Delete grade" style={{ color: 'var(--danger)' }}>🗑️</button>
+                          <button className="btn btn-icon btn-sm" onClick={() => handleDelete(g._id)} aria-label="Delete grade" style={{ color: 'var(--danger)' }}><Trash2 size={13} strokeWidth={2} /></button>
                         )}
                       </td>
                     </tr>
@@ -174,8 +175,8 @@ export default function GradesPage() {
         <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Add Grade">
           <div className="modal">
             <div className="modal-header">
-              <h3 className="modal-title">📝 Add Grade</h3>
-              <button className="btn btn-icon" onClick={() => setModal(null)} aria-label="Close">✕</button>
+              <h3 className="modal-title">Add Grade</h3>
+              <button className="btn btn-icon" onClick={() => setModal(null)} aria-label="Close"><X size={16} /></button>
             </div>
             <form onSubmit={handleSubmit}>
               <div className="modal-body">

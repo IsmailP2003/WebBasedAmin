@@ -70,7 +70,8 @@ router.get('/me', protect, async (req, res) => {
   res.json({ success: true, user: req.user });
 });
 
-// PATCH /api/auth/change-password — change own password (requires current password)
+// PATCH /api/auth/change-password — change own password
+// Teachers are NOT allowed to change their own password; an admin must reset it for them.
 router.patch('/change-password', protect,
   [
     body('currentPassword').notEmpty().withMessage('Current password is required'),
@@ -78,6 +79,14 @@ router.patch('/change-password', protect,
   ],
   async (req, res, next) => {
     try {
+      // Block teachers — password changes for teachers must go through admin reset
+      if (req.user.role === 'teacher') {
+        return res.status(403).json({
+          success: false,
+          message: 'Teachers cannot change their own password. Please contact an administrator.',
+        });
+      }
+
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({ success: false, message: errors.array()[0].msg });

@@ -6,6 +6,11 @@ import {
 } from 'chart.js'
 import { analyticsAPI } from '../api/axios'
 import { useAuth } from '../context/AuthContext'
+import {
+  GraduationCap, BookOpen, ClipboardList, BarChart2,
+  ClipboardCheck, PenLine, Users, AlertTriangle, School,
+  TrendingUp, Clock, Inbox, User
+} from 'lucide-react'
 
 ChartJS.register(
   CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend,
@@ -13,10 +18,10 @@ ChartJS.register(
 )
 
 const baseScales = {
-  x: { ticks: { color: '#64748B', font: { family: 'Inter', size: 11 } }, grid: { color: 'rgba(0,0,0,0.04)' } },
-  y: { ticks: { color: '#64748B', font: { family: 'Inter', size: 11 } }, grid: { color: 'rgba(0,0,0,0.06)' } },
+  x: { ticks: { color: '#64748B', font: { family: 'DM Sans', size: 11 } }, grid: { color: 'rgba(0,0,0,0.04)' } },
+  y: { ticks: { color: '#64748B', font: { family: 'DM Sans', size: 11 } }, grid: { color: 'rgba(0,0,0,0.06)' } },
 }
-const baseLegend = { labels: { color: '#64748B', font: { family: 'Inter', size: 11 } } }
+const baseLegend = { labels: { color: '#64748B', font: { family: 'DM Sans', size: 11 } } }
 
 function StatCard({ icon, label, value, color, suffix = '', trend }) {
   return (
@@ -69,7 +74,7 @@ function TeacherDashboard({ user }) {
         padding: '2rem', background: 'var(--danger-light)', border: '1px solid var(--danger)',
         borderRadius: 'var(--radius-lg)', color: 'var(--danger)', textAlign: 'center',
       }}>
-        <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>⚠️</div>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}><AlertTriangle size={32} strokeWidth={1.5} /></div>
         <div style={{ fontWeight: 600, marginBottom: '0.5rem' }}>Dashboard failed to load</div>
         <div style={{ fontSize: 'var(--text-sm)', opacity: 0.8 }}>{error}</div>
         <button className="btn btn-primary" style={{ marginTop: '1rem' }} onClick={() => window.location.reload()}>
@@ -113,7 +118,9 @@ function TeacherDashboard({ user }) {
         borderRadius: 'var(--radius-lg)', color: '#fff',
         display: 'flex', alignItems: 'center', gap: '1rem',
       }}>
-        <span style={{ fontSize: '2.5rem' }}>👩‍🏫</span>
+        <div style={{ width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <User size={22} strokeWidth={1.75} style={{ color: '#fff' }} />
+        </div>
         <div>
           <div style={{ fontWeight: 700, fontSize: 'var(--text-lg)' }}>Welcome back, {user.name}!</div>
           <div style={{ opacity: 0.85, fontSize: 'var(--text-sm)', marginTop: '0.25rem' }}>
@@ -124,17 +131,17 @@ function TeacherDashboard({ user }) {
 
       {/* Quick stats */}
       <div className="stats-grid" style={{ marginBottom: '1.5rem' }}>
-        <StatCard icon="👩‍🎓" label="Total Students"   value={summary?.totalStudents}          color="blue"  />
-        <StatCard icon="📚" label="Active Courses"    value={summary?.totalCourses}            color="green" />
-        <StatCard icon="📋" label="Attendance Rate"   value={summary?.overallAttendanceRate}   suffix="%" color="amber" />
-        <StatCard icon="📊" label="Average Grade"     value={summary?.avgGrade}                suffix="%" color="cyan"  />
+        <StatCard icon={<GraduationCap size={20} strokeWidth={1.75} />} label="Total Students"   value={summary?.totalStudents}          color="blue"  />
+        <StatCard icon={<BookOpen size={20} strokeWidth={1.75} />}      label="Active Courses"    value={summary?.totalCourses}            color="green" />
+        <StatCard icon={<ClipboardList size={20} strokeWidth={1.75} />} label="Attendance Rate"   value={summary?.overallAttendanceRate}   suffix="%" color="amber" />
+        <StatCard icon={<BarChart2 size={20} strokeWidth={1.75} />}     label="Average Grade"     value={summary?.avgGrade}                suffix="%" color="cyan"  />
       </div>
 
       {/* Attendance chart */}
       {attendanceChartData ? (
         <div className="chart-card" style={{ marginBottom: '1.5rem' }}>
           <div className="chart-title" style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-            <span>📊 Attendance Rate by Course</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><BarChart2 size={14} strokeWidth={2} />Attendance Rate by Course</span>
             <div style={{ display: 'flex', gap: '0.75rem', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
               <span style={{ display:'flex', alignItems:'center', gap:'0.3rem' }}>
                 <span style={{ width:8, height:8, borderRadius:2, background:'#22C55E', display:'inline-block' }} />≥90%
@@ -155,7 +162,7 @@ function TeacherDashboard({ user }) {
                 tooltip: {
                   callbacks: {
                     title: ctx => attData[ctx[0].dataIndex]?.name || ctx[0].label,
-                    label: ctx => ` ${ctx.parsed.y}%  (${ctx.parsed.y >= 90 ? '✅ Excellent' : ctx.parsed.y >= 75 ? '📘 Satisfactory' : '⚠️ Below threshold'})`,
+                    label: ctx => ` ${ctx.parsed.y}%  (${ctx.parsed.y >= 90 ? 'Excellent' : ctx.parsed.y >= 75 ? 'Satisfactory' : 'Below threshold'})`,
                   },
                 },
               },
@@ -175,9 +182,9 @@ function TeacherDashboard({ user }) {
         </div>
       ) : (
         <div className="chart-card" style={{ marginBottom: '1.5rem' }}>
-          <div className="chart-title">📊 Attendance Rate by Course</div>
+          <div className="chart-title" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><BarChart2 size={14} strokeWidth={2} />Attendance Rate by Course</div>
           <div className="empty-state" style={{ padding: '2rem' }}>
-            <div className="empty-state-icon">📋</div>
+            <div className="empty-state-icon"><ClipboardList size={28} strokeWidth={1.25} /></div>
             <p>No attendance data yet. Start marking attendance in the Attendance section.</p>
           </div>
         </div>
@@ -186,14 +193,14 @@ function TeacherDashboard({ user }) {
       {/* Quick links */}
       <div className="two-col">
         {[
-          { icon: '📋', title: 'Mark Attendance', desc: 'Record today\'s class attendance', href: '/attendance', color: 'blue' },
-          { icon: '📝', title: 'Enter Grades', desc: 'Add or update student grades', href: '/grades', color: 'green' },
-          { icon: '🎓', title: 'View Students', desc: 'Browse your enrolled students', href: '/students', color: 'amber' },
-          { icon: '⚠️', title: 'At-Risk Students', desc: 'Check for attendance or grade alerts', href: '/at-risk', color: 'danger' },
+          { Icon: ClipboardCheck, title: 'Mark Attendance', desc: 'Record today\'s class attendance', href: '/attendance', color: 'blue' },
+          { Icon: PenLine,        title: 'Enter Grades',    desc: 'Add or update student grades',     href: '/grades',     color: 'green' },
+          { Icon: Users,          title: 'View Students',   desc: 'Browse your enrolled students',    href: '/students',   color: 'amber' },
+          { Icon: AlertTriangle,  title: 'At-Risk Students',desc: 'Check for attendance or grade alerts', href: '/at-risk', color: 'danger' },
         ].map(card => (
           <a key={card.title} href={card.href} style={{ textDecoration: 'none' }}>
             <div className={`stat-card ${card.color}`} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.25rem 1.5rem' }}>
-              <div className={`stat-icon ${card.color}`} style={{ fontSize: '1.5rem', flexShrink: 0 }}>{card.icon}</div>
+              <div className={`stat-icon ${card.color}`} style={{ fontSize: '1.5rem', flexShrink: 0 }}><card.Icon size={20} strokeWidth={1.75} /></div>
               <div>
                 <div style={{ fontWeight: 700, fontSize: 'var(--text-sm)' }}>{card.title}</div>
                 <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', marginTop: '0.15rem' }}>{card.desc}</div>
@@ -243,7 +250,7 @@ function AdminDashboard() {
         padding: '2rem', background: 'var(--danger-light)', border: '1px solid var(--danger)',
         borderRadius: 'var(--radius-lg)', color: 'var(--danger)', textAlign: 'center',
       }}>
-        <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>⚠️</div>
+        <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '0.5rem' }}><AlertTriangle size={32} strokeWidth={1.5} /></div>
         <div style={{ fontWeight: 600, marginBottom: '0.5rem' }}>Dashboard failed to load</div>
         <div style={{ fontSize: 'var(--text-sm)', opacity: 0.8 }}>{error}</div>
         <button className="btn btn-primary" style={{ marginTop: '1rem' }} onClick={() => window.location.reload()}>
@@ -302,10 +309,10 @@ function AdminDashboard() {
     <div className="page-enter">
       {/* Stats */}
       <div className="stats-grid">
-        <StatCard icon="👩‍🎓" label="Active Students" value={summary?.totalStudents}          color="blue"  />
-        <StatCard icon="📚" label="Active Courses"  value={summary?.totalCourses}            color="green" />
-        <StatCard icon="📋" label="Attendance Rate" value={summary?.overallAttendanceRate}   suffix="%" color="amber" />
-        <StatCard icon="📊" label="Average Grade"   value={summary?.avgGrade}                suffix="%" color="cyan"  />
+        <StatCard icon={<GraduationCap size={20} strokeWidth={1.75} />} label="Active Students" value={summary?.totalStudents}          color="blue"  />
+        <StatCard icon={<BookOpen size={20} strokeWidth={1.75} />}      label="Active Courses"  value={summary?.totalCourses}            color="green" />
+        <StatCard icon={<ClipboardList size={20} strokeWidth={1.75} />} label="Attendance Rate" value={summary?.overallAttendanceRate}   suffix="%" color="amber" />
+        <StatCard icon={<BarChart2 size={20} strokeWidth={1.75} />}     label="Average Grade"   value={summary?.avgGrade}                suffix="%" color="cyan"  />
       </div>
 
       {/* Row 1: Bar + Doughnut */}
@@ -313,7 +320,7 @@ function AdminDashboard() {
         {attendanceChartData ? (
           <div className="chart-card">
             <div className="chart-title" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <span>📊 Attendance Rate by Course</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><BarChart2 size={14} strokeWidth={2} />Attendance Rate by Course</span>
               <div style={{ display: 'flex', gap: '0.75rem', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
                   <span style={{ width: 8, height: 8, borderRadius: 2, background: '#22C55E', display: 'inline-block' }} />≥90%
@@ -334,7 +341,7 @@ function AdminDashboard() {
                   tooltip: {
                     callbacks: {
                       title: ctx => attData[ctx[0].dataIndex]?.name || ctx[0].label,
-                      label: ctx => ` ${ctx.parsed.y}%  (${ctx.parsed.y >= 90 ? '✅ Excellent' : ctx.parsed.y >= 75 ? '📘 Satisfactory' : '⚠️ Below threshold'})`,
+                      label: ctx => ` ${ctx.parsed.y}%  (${ctx.parsed.y >= 90 ? 'Excellent' : ctx.parsed.y >= 75 ? 'Satisfactory' : 'Below threshold'})`,
                     },
                   },
                 },
@@ -352,11 +359,11 @@ function AdminDashboard() {
               Y-axis starts at {attMin}% — zoomed to show differences between courses
             </div>
           </div>
-        ) : <div className="chart-card"><div className="chart-title">📊 Attendance Rate</div><div className="empty-state" style={{ padding: '2rem' }}><p>No attendance data yet</p></div></div>}
+        ) : <div className="chart-card"><div className="chart-title" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><BarChart2 size={14} strokeWidth={2} />Attendance Rate</div><div className="empty-state" style={{ padding: '2rem' }}><p>No attendance data yet</p></div></div>}
 
         {gradeChartData ? (
           <div className="chart-card">
-            <div className="chart-title">🎓 Grade Distribution</div>
+            <div className="chart-title" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><GraduationCap size={14} strokeWidth={2} />Grade Distribution</div>
             <div style={{ height: 210, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <Doughnut data={gradeChartData} options={{
                 responsive: true, maintainAspectRatio: false, cutout: '62%',
@@ -371,7 +378,7 @@ function AdminDashboard() {
       <div className="two-col" style={{ marginBottom: '1.5rem' }}>
         {enrolChartData ? (
           <div className="chart-card">
-            <div className="chart-title">📈 Monthly Enrolments</div>
+            <div className="chart-title" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><TrendingUp size={14} strokeWidth={2} />Monthly Enrolments</div>
             <div style={{ height: 200 }}>
               <Line data={enrolChartData} options={{
                 responsive: true, maintainAspectRatio: false,
@@ -382,13 +389,13 @@ function AdminDashboard() {
           </div>
         ) : (
           <div className="chart-card">
-            <div className="chart-title">📈 Monthly Enrolments</div>
+            <div className="chart-title" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><TrendingUp size={14} strokeWidth={2} />Monthly Enrolments</div>
             <div className="empty-state" style={{ padding: '2rem' }}><p>No enrolment history yet</p></div>
           </div>
         )}
 
         <div className="chart-card" style={{ overflow: 'hidden' }}>
-          <div className="chart-title">🕐 Recent Activity</div>
+          <div className="chart-title" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}><Clock size={14} strokeWidth={2} />Recent Activity</div>
           <div style={{ maxHeight: 240, overflowY: 'auto' }}>
             {summary?.recentActivity?.length > 0 ? (
               <div className="activity-list">
@@ -409,7 +416,7 @@ function AdminDashboard() {
               </div>
             ) : (
               <div className="empty-state" style={{ padding: '1.5rem' }}>
-                <div className="empty-state-icon">📭</div>
+                <div className="empty-state-icon"><Inbox size={28} strokeWidth={1.25} /></div>
                 <p>No activity yet</p>
               </div>
             )}

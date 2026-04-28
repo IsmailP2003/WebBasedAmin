@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useToast } from '../context/ToastContext'
 import { attendanceAPI, coursesAPI } from '../api/axios'
 import { useSort, SortableHeader } from '../hooks/useSort.jsx'
+import { ClipboardList, GraduationCap, Save } from 'lucide-react'
 
 const STATUSES = ['present','absent','late','excused']
 
@@ -98,7 +99,7 @@ export default function AttendancePage() {
 
       {!courseId && (
         <div className="empty-state">
-          <div className="empty-state-icon">📋</div>
+          <div className="empty-state-icon"><ClipboardList size={32} strokeWidth={1.25} /></div>
           <h3>Select a course to begin</h3>
           <p>Choose a course and date above to mark attendance</p>
         </div>
@@ -108,7 +109,7 @@ export default function AttendancePage() {
 
       {courseId && !loading && records.length === 0 && (
         <div className="empty-state">
-          <div className="empty-state-icon">👩‍🎓</div>
+          <div className="empty-state-icon"><GraduationCap size={32} strokeWidth={1.25} /></div>
           <h3>No students enrolled</h3>
           <p>Enrol students in this course from the Courses page</p>
         </div>
@@ -180,7 +181,7 @@ export default function AttendancePage() {
 
           <div style={{ marginTop: '1.25rem', display: 'flex', justifyContent: 'flex-end' }}>
             <button className="btn btn-primary" onClick={handleSave} disabled={saving} aria-label="Save attendance">
-              {saving ? 'Saving…' : '💾 Save Attendance'}
+              {saving ? 'Saving…' : <><Save size={14} strokeWidth={2} style={{ marginRight: '0.4rem' }} />Save Attendance</>}
             </button>
           </div>
         </div>

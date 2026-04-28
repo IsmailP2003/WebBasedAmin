@@ -114,7 +114,9 @@ router.get('/monthly-enrolments', async (req, res, next) => {
 });
 
 
-// GET /api/analytics/at-risk — students with low attendance OR low grades
+// At-risk detection — flags students whose attendance OR average grade falls below
+// the chosen thresholds. Both conditions together = high risk, one alone = medium.
+// Thresholds default to 75% attendance / 50% grade but the UI lets staff adjust them.
 router.get('/at-risk', async (req, res, next) => {
   try {
     const attThreshold = Number(req.query.attThreshold) || 75;
@@ -137,12 +139,16 @@ router.get('/at-risk', async (req, res, next) => {
 
       const lowAtt = attRate !== null && attRate < attThreshold;
       const lowGrade = avgGrade !== null && avgGrade < gradeThreshold;
+
+      // Skip students who are doing fine
       if (!lowAtt && !lowGrade) return null;
 
+      // Both flags = high risk; one flag = medium
       const riskLevel = (lowAtt && lowGrade) ? 'high' : 'medium';
       return { student: s, attRate, avgGrade, lowAtt, lowGrade, riskLevel };
     }));
 
+    // High-risk students float to the top of the table
     const atRisk = results
       .filter(Boolean)
       .sort((a, b) => (b.riskLevel === 'high' ? 1 : 0) - (a.riskLevel === 'high' ? 1 : 0));

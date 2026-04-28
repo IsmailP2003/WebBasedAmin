@@ -166,7 +166,7 @@ export default function Sidebar() {
 
           <div>
             <div style={{
-              fontFamily: "'Lora', Georgia, serif",
+              fontFamily: "'DM Serif Display', Georgia, serif",
               fontSize: '0.95rem',
               fontWeight: 600,
               color: '#ffffff',
@@ -183,7 +183,7 @@ export default function Sidebar() {
               letterSpacing: '0.14em',
               marginTop: '0.15rem',
             }}>
-              Management System
+              Administration Portal
             </div>
           </div>
         </div>
@@ -246,7 +246,7 @@ export default function Sidebar() {
                           position: 'absolute',
                           left: 0, top: '20%', bottom: '20%',
                           width: 3,
-                          background: 'linear-gradient(180deg, #4ade80, #34d399)',
+                          background: 'linear-gradient(180deg, #f5c842, #e8a820)',
                           borderRadius: '0 3px 3px 0',
                         }} />
                       )}
@@ -284,8 +284,8 @@ export default function Sidebar() {
         }}>
           <div style={{
             width: 5, height: 5, borderRadius: '50%',
-            background: '#4ade80',
-            boxShadow: '0 0 6px #4ade80',
+            background: '#f5c842',
+            boxShadow: '0 0 6px rgba(245,200,66,0.6)',
           }} />
           <span>Academic Year 2025–26</span>
         </div>

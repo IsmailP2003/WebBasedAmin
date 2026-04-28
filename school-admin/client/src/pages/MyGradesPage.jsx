@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { gradesAPI } from '../api/axios'
+import { BarChart2, PenLine, Trophy, Target, BookOpen, GraduationCap } from 'lucide-react'
 
 const TYPE_COLORS = {
   exam: '#6366f1',
@@ -125,7 +126,7 @@ export default function MyGradesPage() {
     <div className="page-enter">
       <div className="page-header">
         <div>
-          <h2 className="page-title">📊 My Grades</h2>
+          <h2 className="page-title">My Grades</h2>
           <p className="page-subtitle">Track your academic performance across all courses</p>
         </div>
       </div>
@@ -134,22 +135,22 @@ export default function MyGradesPage() {
       {grades.length > 0 && (
         <div className="stats-grid" style={{ marginBottom: '1.5rem' }}>
           <div className="stat-card blue">
-            <div className="stat-icon blue">📝</div>
+            <div className="stat-icon blue" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><PenLine size={18} strokeWidth={1.75} /></div>
             <div className="stat-value">{grades.length}</div>
             <div className="stat-label">Total Assessments</div>
           </div>
           <div className="stat-card green">
-            <div className="stat-icon green">📊</div>
+            <div className="stat-icon green" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><BarChart2 size={18} strokeWidth={1.75} /></div>
             <div className="stat-value">{avg ?? '—'}<span style={{ fontSize: '0.75em' }}>%</span></div>
             <div className="stat-label">Average Score</div>
           </div>
           <div className="stat-card amber">
-            <div className="stat-icon amber">🏆</div>
+            <div className="stat-icon amber" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Trophy size={18} strokeWidth={1.75} /></div>
             <div className="stat-value">{best ? Math.round((best.score / best.maxScore) * 100) : '—'}<span style={{ fontSize: '0.75em' }}>%</span></div>
             <div className="stat-label">Best Score</div>
           </div>
           <div className="stat-card">
-            <div className="stat-icon">🎯</div>
+            <div className="stat-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}><Target size={18} strokeWidth={1.75} /></div>
             <div className="stat-value" style={{ fontSize: '1.2rem' }}>
               {avg !== null ? gradeInfo(avg).letter : '—'}
             </div>
@@ -186,7 +187,7 @@ export default function MyGradesPage() {
 
           {filtered.length === 0 ? (
             <div className="empty-state">
-              <div className="empty-state-icon">🎓</div>
+              <div className="empty-state-icon"><GraduationCap size={32} strokeWidth={1.25} /></div>
               <h3>No grades yet</h3>
               <p>Your grades will appear here once your instructor records them.</p>
             </div>
@@ -205,7 +206,7 @@ export default function MyGradesPage() {
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
           {/* Distribution */}
           <div className="card">
-            <div className="card-title" style={{ marginBottom: '0.75rem' }}>🎯 Grade Distribution</div>
+            <div className="card-title" style={{ marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><Target size={14} strokeWidth={2} />Grade Distribution</div>
             {['A+', 'A', 'B', 'C', 'D', 'F'].map(letter => {
               const count = distribution[letter] || 0
               const pct = filtered.length > 0 ? Math.round((count / filtered.length) * 100) : 0
@@ -224,7 +225,7 @@ export default function MyGradesPage() {
 
           {/* By assessment type */}
           <div className="card">
-            <div className="card-title" style={{ marginBottom: '0.75rem' }}>📚 By Type</div>
+            <div className="card-title" style={{ marginBottom: '0.75rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><BookOpen size={14} strokeWidth={2} />By Type</div>
             {types.length === 0 ? (
               <p style={{ fontSize: '0.78rem', color: '#94a3b8', textAlign: 'center' }}>No data yet</p>
             ) : types.map(type => {

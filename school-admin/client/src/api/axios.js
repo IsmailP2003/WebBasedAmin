@@ -14,16 +14,29 @@ api.interceptors.request.use(config => {
 })
 
 // Handle 401 globally — clear session and redirect to login
+// Handle 429 globally — show friendly message, auto-retry after delay
 api.interceptors.response.use(
   response => response,
-  error => {
-    if (error.response?.status === 401) {
+  async error => {
+    const status = error.response?.status
+
+    if (status === 401) {
       localStorage.removeItem('token')
       localStorage.removeItem('user')
       if (window.location.pathname !== '/login') {
         window.location.href = '/login'
       }
     }
+
+    if (status === 429) {
+      // Respect the Retry-After header if present, otherwise wait 10s
+      const retryAfter = error.response?.headers?.['retry-after']
+      const waitMs = retryAfter ? Number(retryAfter) * 1000 : 10000
+      await new Promise(resolve => setTimeout(resolve, waitMs))
+      // Retry the original request once
+      return api.request(error.config)
+    }
+
     return Promise.reject(error)
   }
 )

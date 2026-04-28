@@ -3,6 +3,7 @@ import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { studentsAPI, attendanceAPI, gradesAPI } from '../api/axios'
 import { useSort, SortableHeader } from '../hooks/useSort.jsx'
+import { Search, X, Pencil, Trash2, Download, GraduationCap } from 'lucide-react'
 
 const GENDERS = ['male','female','other','prefer_not_to_say']
 const STATUSES = ['active','inactive','graduated','suspended']
@@ -116,10 +117,10 @@ export default function StudentsPage() {
         </div>
         <div className="page-actions">
           <div className="search-bar">
-            <span aria-hidden="true">🔍</span>
+            <Search size={14} strokeWidth={2} style={{ color: 'var(--text-muted)', flexShrink: 0 }} aria-hidden="true" />
             <input placeholder="Search name, email, ID…" value={search}
               onChange={e => setSearch(e.target.value)} aria-label="Search students" />
-            {search && <button onClick={() => setSearch('')} style={{ background:'none',border:'none',color:'var(--text-muted)',cursor:'pointer',fontSize:'1rem' }} aria-label="Clear search">✕</button>}
+            {search && <button onClick={() => setSearch('')} style={{ background:'none',border:'none',color:'var(--text-muted)',cursor:'pointer',display:'flex',alignItems:'center' }} aria-label="Clear search"><X size={13} /></button>}
           </div>
           <select className="form-select" style={{ width: 'auto' }} value={statusFilter}
             onChange={e => setStatusFilter(e.target.value)} aria-label="Filter by status">
@@ -135,7 +136,7 @@ export default function StudentsPage() {
         <div className="loading-center"><div className="spinner" /></div>
       ) : students.length === 0 ? (
         <div className="empty-state">
-          <div className="empty-state-icon">👩‍🎓</div>
+          <div className="empty-state-icon"><GraduationCap size={32} strokeWidth={1.25} /></div>
           <h3>No students found</h3>
           <p>{search ? `No results for "${search}"` : 'Add your first student to get started'}</p>
           {isAdmin && !search && <button className="btn btn-primary" onClick={openAdd}>＋ Add Student</button>}
@@ -164,13 +165,13 @@ export default function StudentsPage() {
                     </td>
                     <td style={{ color:'var(--text-secondary)' }}>{s.email}</td>
                     <td><StatusBadge status={s.status} /></td>
-                    <td><span className="badge badge-neutral">📚 {s.enrolledCourses?.length || 0}</span></td>
+                    <td><span className="badge badge-neutral">{s.enrolledCourses?.length || 0} courses</span></td>
                     <td onClick={e => e.stopPropagation()}>
                       <div style={{ display:'flex', gap:'0.5rem' }}>
-                        <button className="btn btn-icon btn-sm" onClick={e => handleExport(s._id, s.studentId, e)} title="Export CSV" aria-label="Export CSV">📥</button>
+                        <button className="btn btn-icon btn-sm" onClick={e => handleExport(s._id, s.studentId, e)} title="Export CSV" aria-label="Export CSV"><Download size={13} strokeWidth={2} /></button>
                         {isAdmin && <>
-                          <button className="btn btn-icon btn-sm" onClick={() => { openEdit(s) }} title="Edit" aria-label="Edit">✏️</button>
-                          <button className="btn btn-icon btn-sm" onClick={() => openDel(s)} title="Delete" aria-label="Delete" style={{ color:'var(--danger)' }}>🗑️</button>
+                          <button className="btn btn-icon btn-sm" onClick={() => { openEdit(s) }} title="Edit" aria-label="Edit"><Pencil size={13} strokeWidth={2} /></button>
+                          <button className="btn btn-icon btn-sm" onClick={() => openDel(s)} title="Delete" aria-label="Delete" style={{ color:'var(--danger)' }}><Trash2 size={13} strokeWidth={2} /></button>
                         </>}
                       </div>
                     </td>
@@ -210,8 +211,8 @@ export default function StudentsPage() {
               </div>
               <div style={{ display:'flex', gap:'0.5rem' }}>
                 <StatusBadge status={selected.status} />
-                {isAdmin && <button className="btn btn-secondary btn-sm" onClick={() => { close(); openEdit(selected) }}>✏️ Edit</button>}
-                <button className="btn btn-icon" onClick={close} aria-label="Close">✕</button>
+                {isAdmin && <button className="btn btn-secondary btn-sm" onClick={() => { close(); openEdit(selected) }}><Pencil size={12} strokeWidth={2} style={{ marginRight: '0.3rem' }} />Edit</button>}
+                <button className="btn btn-icon" onClick={close} aria-label="Close"><X size={16} /></button>
               </div>
             </div>
             <div className="modal-body">
@@ -280,7 +281,7 @@ export default function StudentsPage() {
               ) : null}
             </div>
             <div className="modal-footer">
-              <button className="btn btn-secondary btn-sm" onClick={e => handleExport(selected._id, selected.studentId, { stopPropagation: ()=>{} })}>📥 Export CSV</button>
+              <button className="btn btn-secondary btn-sm" onClick={e => handleExport(selected._id, selected.studentId, { stopPropagation: ()=>{} })}><Download size={13} strokeWidth={2} style={{ marginRight: '0.3rem' }} />Export CSV</button>
               <button className="btn btn-secondary" onClick={close}>Close</button>
             </div>
           </div>
@@ -292,8 +293,8 @@ export default function StudentsPage() {
         <div className="modal-overlay" role="dialog" aria-modal="true" aria-label={modal === 'add' ? 'Add Student' : 'Edit Student'}>
           <div className="modal">
             <div className="modal-header">
-              <h3 className="modal-title">{modal === 'add' ? '＋ New Student' : '✏️ Edit Student'}</h3>
-              <button className="btn btn-icon" onClick={close} aria-label="Close modal">✕</button>
+              <h3 className="modal-title">{modal === 'add' ? 'New Student' : 'Edit Student'}</h3>
+              <button className="btn btn-icon" onClick={close} aria-label="Close modal"><X size={16} /></button>
             </div>
             <form onSubmit={handleSubmit}>
               <div className="modal-body">
@@ -365,8 +366,8 @@ export default function StudentsPage() {
         <div className="modal-overlay" role="dialog" aria-modal="true" aria-label="Confirm Delete">
           <div className="modal" style={{ maxWidth: 400 }}>
             <div className="modal-header">
-              <h3 className="modal-title">🗑️ Delete Student</h3>
-              <button className="btn btn-icon" onClick={close} aria-label="Close">✕</button>
+              <h3 className="modal-title">Delete Student</h3>
+              <button className="btn btn-icon" onClick={close} aria-label="Close"><X size={16} /></button>
             </div>
             <div className="modal-body">
               <p style={{ color:'var(--text-secondary)' }}>

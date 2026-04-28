@@ -10,11 +10,26 @@ export function AuthProvider({ children }) {
   useEffect(() => {
     const token = localStorage.getItem('token')
     const savedUser = localStorage.getItem('user')
-    if (token && savedUser) {
-      setUser(JSON.parse(savedUser))
-      api.defaults.headers.common['Authorization'] = `Bearer ${token}`
-    }
-    setLoading(false)
+    if (!token || !savedUser) { setLoading(false); return }
+
+    // Optimistically restore user from storage first (fast UX)
+    setUser(JSON.parse(savedUser))
+    api.defaults.headers.common['Authorization'] = `Bearer ${token}`
+
+    // Then verify the token is still valid server-side
+    api.get('/auth/me')
+      .then(({ data }) => {
+        setUser(data.user ?? data.data ?? JSON.parse(savedUser))
+        localStorage.setItem('user', JSON.stringify(data.user ?? data.data ?? JSON.parse(savedUser)))
+      })
+      .catch(() => {
+        // Token expired or invalid — clear session so the axios 401 interceptor doesn't loop
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
+        delete api.defaults.headers.common['Authorization']
+        setUser(null)
+      })
+      .finally(() => setLoading(false))
   }, [])
 
   const login = useCallback(async (email, password) => {

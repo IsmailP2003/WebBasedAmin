@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { useAuth } from '../context/AuthContext'
 import { useToast } from '../context/ToastContext'
 import { attendanceAPI, gradesAPI, coursesAPI } from '../api/axios'
+import { Calendar, List, Clock, MapPin, User, Users, CalendarDays } from 'lucide-react'
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
 const HOURS = Array.from({ length: 9 }, (_, i) => i + 8) // 08:00–16:00
@@ -53,8 +54,8 @@ export default function TimetablePage() {
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
                     {['week', 'list'].map(v => (
                         <button key={v} className={`btn btn-sm ${view === v ? 'btn-primary' : 'btn-secondary'}`}
-                            onClick={() => setView(v)} style={{ textTransform: 'capitalize' }} aria-pressed={view === v}>
-                            {v === 'week' ? '📅 Week' : '📋 List'}
+                            onClick={() => setView(v)} style={{ textTransform: 'capitalize', display: 'flex', alignItems: 'center', gap: '0.4rem' }} aria-pressed={view === v}>
+                            {v === 'week' ? <><CalendarDays size={13} strokeWidth={2} />Week</> : <><List size={13} strokeWidth={2} />List</>}
                         </button>
                     ))}
                 </div>
@@ -62,7 +63,7 @@ export default function TimetablePage() {
 
             {loading ? <div className="loading-center"><div className="spinner" /></div> : courses.length === 0 ? (
                 <div className="empty-state">
-                    <div className="empty-state-icon">📅</div>
+                    <div className="empty-state-icon"><Calendar size={32} strokeWidth={1.25} /></div>
                     <h3>No scheduled courses</h3>
                     <p>Add a schedule (day, time, room) to courses to see them here.</p>
                 </div>
@@ -87,12 +88,13 @@ export default function TimetablePage() {
                                     }}>
                                         <div style={{ fontWeight: 700, color: c.color, fontSize: 'var(--text-xs)' }}>{c.courseCode}</div>
                                         <div style={{ fontWeight: 600, fontSize: 'var(--text-sm)' }}>{c.name}</div>
-                                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: '0.25rem' }}>
-                                            🕐 {c.schedule.startTime}–{c.schedule.endTime}
-                                            {c.schedule.room && ` · 📍 ${c.schedule.room}`}
+                                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', marginTop: '0.25rem', display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
+                                            <Clock size={10} strokeWidth={2} />{c.schedule.startTime}–{c.schedule.endTime}
+                                            {c.schedule.room && <><MapPin size={10} strokeWidth={2} />{c.schedule.room}</>}
                                         </div>
-                                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
-                                            👩‍🏫 {c.teacher?.name || '—'} · 👩‍🎓 {c.studentCount} students
+                                        <div style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
+                                            <User size={10} strokeWidth={2} />{c.teacher?.name || '—'}
+                                            <Users size={10} strokeWidth={2} />{c.studentCount} students
                                         </div>
                                     </div>
                                 ))
@@ -113,7 +115,7 @@ export default function TimetablePage() {
                                 background: day === today ? 'var(--accent-light)' : 'var(--bg-secondary)',
                                 color: day === today ? 'var(--accent)' : 'var(--text-primary)',
                             }}>
-                                {day.slice(0, 3)} {day === today && '📍'}
+                                {day.slice(0, 3)} {day === today && <span style={{ display: 'inline-block', width: 6, height: 6, borderRadius: '50%', background: 'var(--accent)', verticalAlign: 'middle', marginLeft: 3 }} />}
                             </div>
                         ))}
 

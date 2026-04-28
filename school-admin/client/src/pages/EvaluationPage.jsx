@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useToast } from '../context/ToastContext'
 import { evaluationAPI } from '../api/axios'
+import { Trophy, CheckCircle2, ThumbsUp, AlertTriangle, Star } from 'lucide-react'
 
 const SUS_QUESTIONS = [
   { id: 'q1',  positive: true,  text: 'I think that I would like to use this system frequently.' },
@@ -48,8 +49,11 @@ export default function EvaluationPage() {
     return (
       <div style={{ maxWidth: 600, margin: '0 auto' }} className="page-enter">
         <div className="card" style={{ textAlign: 'center', padding: '3rem 2rem' }}>
-          <div style={{ fontSize: '4rem', marginBottom: '1.5rem' }}>
-            {result.rating === 'Excellent' ? '🏆' : result.rating === 'Good' ? '✅' : result.rating === 'OK' ? '👍' : '⚠️'}
+          <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}>
+            {result.rating === 'Excellent' ? <Trophy size={52} strokeWidth={1.25} style={{ color: '#d97706' }} />
+              : result.rating === 'Good' ? <CheckCircle2 size={52} strokeWidth={1.25} style={{ color: 'var(--success)' }} />
+              : result.rating === 'OK' ? <ThumbsUp size={52} strokeWidth={1.25} style={{ color: 'var(--accent)' }} />
+              : <AlertTriangle size={52} strokeWidth={1.25} style={{ color: 'var(--warning)' }} />}
           </div>
           <h2 style={{ fontSize: 'var(--text-2xl)', fontWeight: 800, marginBottom: '0.5rem' }}>
             Evaluation Complete
@@ -82,7 +86,7 @@ export default function EvaluationPage() {
   return (
     <div style={{ maxWidth: 700, margin: '0 auto' }} className="page-enter">
       <div className="card" style={{ marginBottom: '1.5rem' }}>
-        <div className="chart-title" style={{ marginBottom: '0.5rem' }}>⭐ System Usability Scale (SUS) Evaluation</div>
+        <div className="chart-title" style={{ marginBottom: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.4rem' }}><Star size={14} strokeWidth={2} />System Usability Scale (SUS) Evaluation</div>
         <p style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-sm)', lineHeight: 1.7 }}>
           This questionnaire measures the usability of the SchoolAdmin system using the standardised SUS methodology
           (Brooke, 1996). Please rate each statement from <strong>1 (Strongly Disagree)</strong> to <strong>5 (Strongly Agree)</strong>.
@@ -146,7 +150,7 @@ export default function EvaluationPage() {
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1.5rem' }}>
           <button type="submit" className="btn btn-primary" disabled={submitting || !allAnswered}
             style={{ padding: '0.8rem 2rem', fontSize: 'var(--text-base)' }} aria-label="Submit evaluation">
-            {submitting ? 'Submitting…' : `⭐ Submit Evaluation (${answered}/${SUS_QUESTIONS.length})`}
+            {submitting ? 'Submitting…' : <><Star size={14} strokeWidth={2} style={{ marginRight: '0.4rem' }} />Submit Evaluation ({answered}/{SUS_QUESTIONS.length})</>}
           </button>
         </div>
       </form>
