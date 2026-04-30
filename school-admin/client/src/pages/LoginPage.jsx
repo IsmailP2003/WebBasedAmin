@@ -168,35 +168,6 @@ export default function LoginPage() {
             </button>
           </form>
 
-          {/* Demo credentials */}
-          <div style={{
-            marginTop: '2rem', padding: '1rem 1.1rem',
-            background: '#f9fafb', border: '1px solid #e5e7eb',
-            borderRadius: 10, fontSize: '0.75rem',
-          }}>
-            <div style={{
-              fontWeight: 700, color: '#374151',
-              textTransform: 'uppercase', letterSpacing: '0.06em',
-              marginBottom: '0.65rem', fontSize: '0.65rem',
-            }}>
-              Demo Credentials
-            </div>
-            {[
-              ['admin@schooladmin.com',         'Administrator'],
-              ['sarah.johnson@schooladmin.com', 'Faculty Member'],
-              ['david.chen@schooladmin.com',    'Faculty Member'],
-            ].map(([email, role]) => (
-              <div key={email} style={{ display: 'flex', justifyContent: 'space-between', gap: '0.5rem', padding: '0.25rem 0', borderBottom: '1px solid #f3f4f6' }}>
-                <code style={{ fontSize: '0.72rem', color: '#374151', fontFamily: 'monospace' }}>{email}</code>
-                <span style={{ fontSize: '0.65rem', color: '#0f5c4e', fontWeight: 700, flexShrink: 0 }}>{role}</span>
-              </div>
-            ))}
-            <div style={{ marginTop: '0.6rem', color: '#6b7280', lineHeight: 1.7 }}>
-              Admin: <code style={{ background: '#f3f4f6', padding: '0.1rem 0.3rem', borderRadius: 3, fontSize: '0.72rem' }}>Admin1234!</code>
-              {' · '}
-              Teacher: <code style={{ background: '#f3f4f6', padding: '0.1rem 0.3rem', borderRadius: 3, fontSize: '0.72rem' }}>Teacher1234!</code>
-            </div>
-          </div>
 
           <p style={{ textAlign: 'center', fontSize: '0.68rem', color: '#d1d5db', marginTop: '2rem' }}>
             © {new Date().getFullYear()} SchoolAdmin · Academic Management System
