@@ -161,7 +161,7 @@ export default function StudentsPage() {
                     <td><code style={{ color:'var(--accent)', fontSize:'var(--text-xs)' }}>{s.studentId}</code></td>
                     <td>
                       <div style={{ fontWeight: 600 }}>{s.firstName} {s.lastName}</div>
-                      <div style={{ fontSize:'var(--text-xs)', color:'var(--text-muted)', textTransform:'capitalize' }}>{s.gender?.replace('_',' ')}</div>
+                      <div style={{ fontSize:'var(--text-xs)', color:'var(--text-muted)', textTransform:'capitalize' }}>{s.gender?.replaceAll('_',' ')}</div>
                     </td>
                     <td style={{ color:'var(--text-secondary)' }}>{s.email}</td>
                     <td><StatusBadge status={s.status} /></td>
@@ -332,7 +332,7 @@ export default function StudentsPage() {
                   <div className="form-group">
                     <label className="form-label">Gender *</label>
                     <select className="form-select" value={form.gender} onChange={e => setForm({...form, gender: e.target.value})}>
-                      {GENDERS.map(g => <option key={g} value={g}>{g.replace('_',' ')}</option>)}
+                      {GENDERS.map(g => <option key={g} value={g}>{g.replaceAll('_',' ')}</option>)}
                     </select>
                   </div>
                 </div>
