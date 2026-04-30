@@ -1,3 +1,4 @@
+// Attendance routes — bulk mark per session, teachers restricted to their own courses
 const express = require('express');
 const Attendance = require('../models/Attendance');
 const Course = require('../models/Course');

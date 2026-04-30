@@ -1,3 +1,4 @@
+// Grade routes — teachers can only add/edit grades for courses they're assigned to
 const express = require('express');
 const { body, validationResult } = require('express-validator');
 const Grade = require('../models/Grade');

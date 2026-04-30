@@ -1,3 +1,5 @@
+// Analytics routes — handles all the dashboard stats and the at-risk detection
+// Only admins and teachers can access these endpoints
 const express = require('express');
 const Student = require('../models/Student');
 const Course = require('../models/Course');

@@ -1,3 +1,4 @@
+// Auth routes — login, get current user, and change password
 const express = require('express');
 const jwt = require('jsonwebtoken');
 const { body, validationResult } = require('express-validator');

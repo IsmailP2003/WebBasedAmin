@@ -1,3 +1,5 @@
+// Axios instance used for all API calls
+// Automatically attaches the JWT token and handles 401/429 responses globally
 import axios from 'axios'
 
 const api = axios.create({

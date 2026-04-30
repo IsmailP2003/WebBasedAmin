@@ -1,3 +1,5 @@
+// JWT middleware — protect checks the token is valid and the user is still active
+// authorize is used on routes that need a specific role (e.g. admin only)
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 

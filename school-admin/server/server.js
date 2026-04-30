@@ -1,3 +1,5 @@
+// Main server file — sets up Express, connects to MongoDB and registers all the routes
+// Security middleware (helmet, CORS, rate limiting) is applied here before any routes
 require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
